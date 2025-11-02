@@ -1,0 +1,25 @@
+# Node dependencies
+node_modules
+
+# Build outputs
+dist
+build
+
+# Environment files
+.env
+.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Uploads / Generated docs
+uploads
+tmp
+*.pdf
+*.docx
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
