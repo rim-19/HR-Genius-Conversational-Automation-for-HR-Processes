@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { FiPlay, FiPause, FiSettings, FiActivity } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../utils/roles';
 
 interface Workflow {
   id: string;
@@ -14,8 +16,14 @@ interface Workflow {
 }
 
 const Workflows: React.FC = () => {
+  const { user } = useAuth();
+  
+  // VISIBLE_TO: ['ADMIN', 'HR']
+  // This page is already protected by route guard, but we add checks here for UI elements
+  
   // Mock workflows data
   // TODO: integrate n8n workflow trigger
+  // TODO: fetch from /api/workflows
   const [workflows] = useState<Workflow[]>([
     {
       id: '1',

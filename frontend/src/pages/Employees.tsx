@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import EmployeeCard from '../components/EmployeeCard';
 import { FiPlus, FiSearch, FiFilter } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../utils/roles';
 
 interface Employee {
   id: string;
@@ -16,8 +18,15 @@ interface Employee {
 }
 
 const Employees: React.FC = () => {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  
+  // RENDER_IF: user.role === 'HR' || user.role === 'ADMIN'
+  const canManageEmployees = user?.role === UserRole.HR || user?.role === UserRole.ADMIN;
+  
+  // RENDER_IF: user.role === 'MANAGER'
+  const isManager = user?.role === UserRole.MANAGER;
 
   // Mock employee data
   // TODO: fetch from /api/employees
@@ -102,16 +111,26 @@ const Employees: React.FC = () => {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
-          <p className="text-sm text-gray-600">Manage your team members and their information</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isManager ? 'My Team' : 'Employees'}
+          </h1>
+          <p className="text-sm text-gray-600">
+            {isManager 
+              ? 'View your team members and their information' 
+              : 'Manage your team members and their information'
+            }
+          </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="btn btn-primary flex items-center space-x-2"
-        >
-          <FiPlus className="h-5 w-5" />
-          <span>Add Employee</span>
-        </button>
+        {/* VISIBLE_TO: ['ADMIN', 'HR'] */}
+        {canManageEmployees && (
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <FiPlus className="h-5 w-5" />
+            <span>Add Employee</span>
+          </button>
+        )}
       </motion.div>
 
       {/* Search and filters */}
@@ -161,8 +180,8 @@ const Employees: React.FC = () => {
             >
               <EmployeeCard
                 employee={employee}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onEdit={canManageEmployees ? handleEdit : undefined}
+                onDelete={canManageEmployees ? handleDelete : undefined}
               />
             </motion.div>
           ))}

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiPlus, FiDownload, FiFileText, FiTrash2 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../utils/roles';
 
 interface Document {
   id: string;
@@ -13,8 +15,15 @@ interface Document {
 }
 
 const Documents: React.FC = () => {
+  const { user } = useAuth();
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [selectedDocType, setSelectedDocType] = useState('');
+  
+  // RENDER_IF: user.role === 'HR' || user.role === 'ADMIN'
+  const canGenerateDocuments = user?.role === UserRole.HR || user?.role === UserRole.ADMIN;
+  
+  // RENDER_IF: user.role === 'EMPLOYEE'
+  const isEmployee = user?.role === UserRole.EMPLOYEE;
 
   // Mock documents data
   // TODO: connect to /api/documents
@@ -89,16 +98,32 @@ const Documents: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
           <p className="text-sm text-gray-600">
-            Generate and manage HR documents with AI assistance
+            {isEmployee 
+              ? 'View and request your personal documents' 
+              : 'Generate and manage HR documents with AI assistance'
+            }
           </p>
         </div>
-        <button
-          onClick={() => setShowGenerateModal(true)}
-          className="btn btn-primary flex items-center space-x-2"
-        >
-          <FiPlus className="h-5 w-5" />
-          <span>Generate Document</span>
-        </button>
+        {/* VISIBLE_TO: ['ADMIN', 'HR'] */}
+        {canGenerateDocuments && (
+          <button
+            onClick={() => setShowGenerateModal(true)}
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <FiPlus className="h-5 w-5" />
+            <span>Generate Document</span>
+          </button>
+        )}
+        {/* VISIBLE_TO: ['EMPLOYEE'] */}
+        {isEmployee && (
+          <button
+            onClick={() => setShowGenerateModal(true)}
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <FiPlus className="h-5 w-5" />
+            <span>Request Document</span>
+          </button>
+        )}
       </motion.div>
 
       {/* Documents grid */}
@@ -143,12 +168,15 @@ const Documents: React.FC = () => {
                 <FiDownload className="h-4 w-4" />
                 <span>Download</span>
               </button>
-              <button
-                onClick={() => handleDelete(doc.id)}
-                className="btn btn-outline text-red-600 hover:bg-red-50"
-              >
-                <FiTrash2 className="h-4 w-4" />
-              </button>
+              {/* VISIBLE_TO: ['ADMIN', 'HR'] */}
+              {canGenerateDocuments && (
+                <button
+                  onClick={() => handleDelete(doc.id)}
+                  className="btn btn-outline text-red-600 hover:bg-red-50"
+                >
+                  <FiTrash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </motion.div>
         ))}

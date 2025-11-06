@@ -3,11 +3,13 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi';
+import { UserRole } from '../utils/roles';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.HR);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -17,7 +19,8 @@ const Login: React.FC = () => {
 
     try {
       // TODO: connect login form to /api/auth/login
-      await login(email, password);
+      // Remove selectedRole parameter when backend is integrated
+      await login(email, password, selectedRole);
     } catch (error) {
       console.error('Login error:', error);
     } finally {
@@ -102,6 +105,24 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            {/* Role selector for demo - BEFORE password field */}
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                Select Role (Demo Only)
+              </label>
+              <select
+                id="role"
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                className="input w-full"
+              >
+                <option value={UserRole.ADMIN}>Admin - Full Access</option>
+                <option value={UserRole.HR}>HR - Employee & Document Management</option>
+                <option value={UserRole.MANAGER}>Manager - Team View & Approvals</option>
+                <option value={UserRole.EMPLOYEE}>Employee - Personal Documents</option>
+              </select>
+            </div>
+
             {/* Remember me and forgot password */}
             <div className="flex items-center justify-between">
               <label className="flex items-center">
@@ -136,7 +157,7 @@ const Login: React.FC = () => {
           {/* Demo credentials hint */}
           <div className="mt-6 rounded-lg bg-primary-50 p-4">
             <p className="text-sm text-primary-800">
-              <strong>Demo:</strong> Use any email and password to login
+              <strong>Demo:</strong> Use any email and password. Select a role above to test different permissions.
             </p>
           </div>
         </motion.div>

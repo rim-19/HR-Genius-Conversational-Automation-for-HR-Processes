@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FiBell, FiSearch, FiChevronDown } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { ROLE_DISPLAY_NAMES, ROLE_BADGE_COLORS } from '../utils/roles';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -41,8 +42,20 @@ const Navbar: React.FC = () => {
               className="h-8 w-8 rounded-full"
             />
             <div className="hidden text-left md:block">
-              <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500">{user?.role}</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                {/* Role badge */}
+                {user?.role && (
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${ROLE_BADGE_COLORS[user.role]}`}
+                  >
+                    {ROLE_DISPLAY_NAMES[user.role]}
+                  </motion.span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
             <FiChevronDown className="h-4 w-4 text-gray-600" />
           </button>
