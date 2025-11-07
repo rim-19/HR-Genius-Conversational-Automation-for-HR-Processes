@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi';
 import { UserRole } from '../utils/roles';
 
@@ -105,22 +105,32 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Role selector for demo - BEFORE password field */}
+            {/* Role selector for demo */}
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                 Select Role (Demo Only)
               </label>
-              <select
-                id="role"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                className="input w-full"
-              >
-                <option value={UserRole.ADMIN}>Admin - Full Access</option>
-                <option value={UserRole.HR}>HR - Employee & Document Management</option>
-                <option value={UserRole.MANAGER}>Manager - Team View & Approvals</option>
-                <option value={UserRole.EMPLOYEE}>Employee - Personal Documents</option>
-              </select>
+              <div className="relative mt-1">
+                <FiUser className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 pointer-events-none z-10" />
+                <select
+                  id="role"
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                  className="input w-full pl-10 pr-10 appearance-none cursor-pointer bg-white"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: 'right 0.5rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1.5em 1.5em',
+                    paddingRight: '2.5rem'
+                  }}
+                >
+                  <option value={UserRole.ADMIN}>Admin - Full Access</option>
+                  <option value={UserRole.HR}>HR - Employee & Document Management</option>
+                  <option value={UserRole.MANAGER}>Manager - Team View & Approvals</option>
+                  <option value={UserRole.EMPLOYEE}>Employee - Personal Documents</option>
+                </select>
+              </div>
             </div>
 
             {/* Remember me and forgot password */}
