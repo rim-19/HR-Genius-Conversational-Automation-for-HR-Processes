@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import api from '../services/api';
 import { UserRole } from '../utils/roles';
 
 // Define user interface
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: UserRole; // Use enum instead of string
+  role: UserRole;
   avatar?: string;
+  token?: string;
 }
 
 // Define auth context interface
@@ -17,7 +19,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, role?: UserRole) => Promise<void>; // role param for demo only
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -25,36 +27,35 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// AuthProvider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Check for stored user on mount and fetch from backend
+  // Load user on mount
   useEffect(() => {
     const loadUser = async () => {
       try {
-        // TODO: Replace with actual API call to /api/auth/me
-        // const response = await api.get('/auth/me');
-        // const userData = response.data;
-        // setUser(userData);
-        
-        // For now, check localStorage
         const storedUser = localStorage.getItem('hr_genius_user');
+
         if (storedUser) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            // Ensure role is valid UserRole enum value
-            if (Object.values(UserRole).includes(parsedUser.role)) {
-              setUser(parsedUser);
-            } else {
-              console.warn('Invalid role in stored user, clearing...');
-              localStorage.removeItem('hr_genius_user');
-            }
-          } catch (error) {
-            console.error('Error parsing stored user:', error);
+          const parsedUser = JSON.parse(storedUser);
+
+          // Validate role
+          if (!Object.values(UserRole).includes(parsedUser.role)) {
             localStorage.removeItem('hr_genius_user');
+            setIsLoading(false);
+            return;
+          }
+
+          // Validate token with backend
+          try {
+            const response = await api.get('/me'); // backend must return user info
+            setUser({ ...response.data, token: parsedUser.token, avatar: parsedUser.avatar });
+          } catch (err) {
+            // Token invalid → logout
+            localStorage.removeItem('hr_genius_user');
+            setUser(null);
           }
         }
       } catch (error) {
@@ -67,51 +68,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loadUser();
   }, []);
 
-  // Login function
-  // For demo: accepts optional role parameter to test different user roles
-  const login = async (email: string, password: string, role?: UserRole) => {
+  // Login
+  const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      
-      // TODO: Replace with actual API call
-      // const response = await axios.post('/api/auth/login', { email, password });
-      // const userData = response.data;
-      // setUser(userData); // Backend should return user with role
-      
-      // Mock login for now - remove role parameter when backend is integrated
-      // TODO: Replace with actual API call to /api/auth/login
-      // Backend should return user object with role: 'ADMIN' | 'HR' | 'MANAGER' | 'EMPLOYEE'
-      const roleNames: Record<UserRole, string> = {
-        [UserRole.ADMIN]: 'Admin User',
-        [UserRole.HR]: 'HR Manager',
-        [UserRole.MANAGER]: 'Team Manager',
-        [UserRole.EMPLOYEE]: 'Employee',
-      };
-      
-      const selectedRole = role || UserRole.HR;
-      const name = email.split('@')[0].replace(/[^a-zA-Z]/g, ' ') || 'User';
-      
-      const mockUser: User = {
-        id: '1',
-        name: `${name} (${roleNames[selectedRole]})`,
-        email: email,
-        role: selectedRole,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0ea5e9&color=fff`
+
+      const response = await api.post('/auth/login', { email, password });
+      const { token, user: userData } = response.data;
+
+      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        userData.name
+      )}&background=0ea5e9&color=fff`;
+
+      const userToStore = {
+        ...userData,
+        avatar,
+        token,
       };
 
-      setUser(mockUser);
-      localStorage.setItem('hr_genius_user', JSON.stringify(mockUser));
-      toast.success(`Welcome back, ${mockUser.name}!`);
+      localStorage.setItem('hr_genius_user', JSON.stringify(userToStore));
+      setUser(userToStore);
+
+      toast.success(`Welcome back, ${userData.name}!`);
       navigate('/dashboard');
     } catch (error) {
-      toast.error('Login failed. Please check your credentials.');
+      toast.error('Invalid email or password.');
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Logout function
+  // Logout
   const logout = () => {
     setUser(null);
     localStorage.removeItem('hr_genius_user');
@@ -119,15 +107,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     navigate('/login');
   };
 
-  // Update user function with smooth transition support
+  // Update user (role, data…)
   const updateUser = (updatedUser: User) => {
-    // Validate role before updating
     if (!Object.values(UserRole).includes(updatedUser.role)) {
-      console.error('Invalid role provided:', updatedUser.role);
+      console.error('Invalid role:', updatedUser.role);
       return;
     }
+
     setUser(updatedUser);
-    localStorage.setItem('hr_genius_user', JSON.stringify(updatedUser));
+
+    const stored = localStorage.getItem('hr_genius_user');
+    if (stored) {
+      const oldUser = JSON.parse(stored);
+      localStorage.setItem(
+        'hr_genius_user',
+        JSON.stringify({ ...oldUser, ...updatedUser })
+      );
+    }
   };
 
   const value: AuthContextType = {
@@ -142,10 +138,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use auth context
+// Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

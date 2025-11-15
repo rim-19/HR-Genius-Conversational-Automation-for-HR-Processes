@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -16,17 +16,18 @@ api.interceptors.request.use(
     if (user) {
       try {
         const userData = JSON.parse(user);
-        // TODO: Add actual token from backend
-        config.headers.Authorization = `Bearer ${userData.id}`;
+
+        // Attach the real JWT token
+        if (userData?.token) {
+          config.headers.Authorization = `Bearer ${userData.token}`;
+        }
       } catch (error) {
         console.error('Error parsing user data:', error);
       }
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor for error handling
@@ -44,64 +45,72 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  login: (email: string, password: string) => 
+  login: (email: string, password: string) =>
     api.post('/auth/login', { email, password }),
-  logout: () => 
-    api.post('/auth/logout'),
-  register: (data: any) => 
+
+  logout: () => {
+    localStorage.removeItem('hr_genius_user');
+    window.location.href = '/login';
+  },
+
+  register: (data: any) =>
     api.post('/auth/register', data),
 };
 
 // Assistant API
 export const assistantAPI = {
-  sendMessage: (message: string) => 
+  sendMessage: (message: string) =>
     api.post('/assistant/chat', { message }),
-  // TODO: integrate backend endpoint later
-  // Example: await axios.post("/api/assistant", { prompt })
-  getHistory: () => 
+
+  getHistory: () =>
     api.get('/assistant/history'),
-  clearHistory: () => 
+
+  clearHistory: () =>
     api.delete('/assistant/history'),
 };
 
 // Employees API
 export const employeesAPI = {
-  getAll: () => 
-    api.get('/employees'),
-  // TODO: fetch from /api/employees
-  getById: (id: string) => 
+  getAll: () => api.get('/employees'),
+
+  getById: (id: string) =>
     api.get(`/employees/${id}`),
-  create: (data: any) => 
+
+  create: (data: any) =>
     api.post('/employees', data),
-  update: (id: string, data: any) => 
+
+  update: (id: string, data: any) =>
     api.put(`/employees/${id}`, data),
-  delete: (id: string) => 
+
+  delete: (id: string) =>
     api.delete(`/employees/${id}`),
 };
 
 // Documents API
 export const documentsAPI = {
-  getAll: () => 
-    api.get('/documents'),
-  // TODO: connect to /api/documents
-  getById: (id: string) => 
+  getAll: () => api.get('/documents'),
+
+  getById: (id: string) =>
     api.get(`/documents/${id}`),
-  generate: (type: string, data: any) => 
+
+  generate: (type: string, data: any) =>
     api.post('/documents/generate', { type, data }),
-  download: (id: string) => 
+
+  download: (id: string) =>
     api.get(`/documents/${id}/download`, { responseType: 'blob' }),
-  delete: (id: string) => 
+
+  delete: (id: string) =>
     api.delete(`/documents/${id}`),
 };
 
 // Workflows API
 export const workflowsAPI = {
-  getAll: () => 
-    api.get('/workflows'),
-  // TODO: integrate n8n workflow trigger
-  trigger: (workflowId: string, data: any) => 
+  getAll: () => api.get('/workflows'),
+
+  trigger: (workflowId: string, data: any) =>
     api.post(`/workflows/${workflowId}/trigger`, data),
-  getStatus: (workflowId: string) => 
+
+  getStatus: (workflowId: string) =>
     api.get(`/workflows/${workflowId}/status`),
 };
 

@@ -12,27 +12,73 @@ import {
 } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
-import { UserRole, isRouteAccessible } from '../utils/roles';
+import { UserRole } from '../utils/roles';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useAuth();
 
-  // All possible menu items
-  // Visibility is controlled by role-based access control
+  // -------------------------------
+  // MENU CONFIG WITH ROLE ACCESS
+  // -------------------------------
   const allMenuItems = [
-    { path: '/dashboard', icon: FiHome, label: 'Dashboard', roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE] },
-    { path: '/assistant', icon: FiMessageSquare, label: 'AI Assistant', roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE] },
-    { path: '/employees', icon: FiUsers, label: 'Employees', roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER] }, // VISIBLE_TO: ['ADMIN', 'HR', 'MANAGER']
-    { path: '/documents', icon: FiFileText, label: 'Documents', roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE] },
-    { path: '/workflows', icon: HiSparkles, label: 'Workflows', roles: [UserRole.ADMIN, UserRole.HR] }, // VISIBLE_TO: ['ADMIN', 'HR']
+    {
+      path: '/dashboard',
+      icon: FiHome,
+      label: 'Dashboard',
+      roles: [
+        UserRole.ADMIN,
+        UserRole.HR,
+        UserRole.MANAGER,
+        UserRole.EMPLOYEE,
+      ],
+    },
+    {
+      path: '/assistant',
+      icon: FiMessageSquare,
+      label: 'AI Assistant',
+      roles: [
+        UserRole.ADMIN,
+        UserRole.HR,
+        UserRole.MANAGER,
+        UserRole.EMPLOYEE,
+      ],
+    },
+    {
+      path: '/employees',
+      icon: FiUsers,
+      label: 'Employees',
+      roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER],
+    },
+    {
+      path: '/documents',
+      icon: FiFileText,
+      label: 'Documents',
+      roles: [
+        UserRole.ADMIN,
+        UserRole.HR,
+        UserRole.MANAGER,
+        UserRole.EMPLOYEE,
+      ],
+    },
+    {
+      path: '/workflows',
+      icon: HiSparkles,
+      label: 'Workflows',
+      roles: [UserRole.ADMIN, UserRole.HR],
+    },
+    {
+      path: '/settings',
+      icon: FiSettings,
+      label: 'Settings',
+      roles: [UserRole.ADMIN],
+    },
   ];
 
-  // Filter menu items based on user role
-  const menuItems = allMenuItems.filter((item) => {
-    if (!user?.role) return false;
-    return item.roles.includes(user.role);
-  });
+  // Show only allowed items
+  const menuItems = allMenuItems.filter((item) =>
+    user?.role ? item.roles.includes(user.role) : false
+  );
 
   return (
     <motion.aside
@@ -41,7 +87,7 @@ const Sidebar: React.FC = () => {
     >
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
-        {!isCollapsed && (
+        {!isCollapsed ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -55,8 +101,7 @@ const Sidebar: React.FC = () => {
               <p className="text-xs text-gray-500">AI Assistant</p>
             </div>
           </motion.div>
-        )}
-        {isCollapsed && (
+        ) : (
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500">
             <HiSparkles className="h-6 w-6 text-white" />
           </div>
@@ -88,25 +133,6 @@ const Sidebar: React.FC = () => {
           </motion.div>
         ))}
       </nav>
-
-      {/* Settings at bottom - VISIBLE_TO: ['ADMIN'] */}
-      {user?.role === UserRole.ADMIN && (
-        <div className="border-t border-gray-200 p-4">
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-              }`
-            }
-          >
-            <FiSettings className="h-5 w-5 flex-shrink-0" />
-            {!isCollapsed && <span>Settings</span>}
-          </NavLink>
-        </div>
-      )}
 
       {/* Collapse button */}
       <button

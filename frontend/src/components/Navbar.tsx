@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Right side - Notifications and User */}
+      {/* Right side */}
       <div className="flex items-center space-x-4">
         {/* Notifications */}
         <button className="relative rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900">
@@ -37,13 +37,19 @@ const Navbar: React.FC = () => {
             className="flex items-center space-x-3 rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
             <img
-              src={user?.avatar || 'https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff'}
+              src={
+                user?.avatar ||
+                'https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff'
+              }
               alt={user?.name}
               className="h-8 w-8 rounded-full"
             />
+
+            {/* Hide name on small screens */}
             <div className="hidden text-left md:block">
               <div className="flex items-center space-x-2">
                 <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+
                 {/* Role badge */}
                 {user?.role && (
                   <motion.span
@@ -57,10 +63,11 @@ const Navbar: React.FC = () => {
               </div>
               <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
+
             <FiChevronDown className="h-4 w-4 text-gray-600" />
           </button>
 
-          {/* Dropdown menu */}
+          {/* Dropdown */}
           {showDropdown && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -70,12 +77,13 @@ const Navbar: React.FC = () => {
               <button
                 onClick={() => {
                   setShowDropdown(false);
-                  // Navigate to profile
+                  // TODO: navigate to profile later
                 }}
                 className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
               >
                 Profile Settings
               </button>
+
               <button
                 onClick={() => {
                   setShowDropdown(false);

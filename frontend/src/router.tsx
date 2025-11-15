@@ -10,9 +10,11 @@ import Documents from './pages/Documents';
 import Workflows from './pages/Workflows';
 import Settings from './pages/Settings';
 import NotAuthorized from './pages/NotAuthorized';
-import { UserRole, isRouteAccessible } from './utils/roles';
+import { UserRole } from './utils/roles';
 
-// Protected route component
+// ----------------------
+// Protected route
+// ----------------------
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -27,12 +29,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-// Role-based protected route component
-// TODO: protect route for specific roles
-const RoleProtectedRoute = ({ 
-  children, 
-  allowedRoles 
-}: { 
+// ----------------------
+// Role protected route
+// ----------------------
+const RoleProtectedRoute = ({
+  children,
+  allowedRoles
+}: {
   children: React.ReactNode;
   allowedRoles: UserRole[];
 }) => {
@@ -50,7 +53,6 @@ const RoleProtectedRoute = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Check if user has required role
   if (!user || !allowedRoles.includes(user.role)) {
     return <NotAuthorized />;
   }
@@ -58,13 +60,17 @@ const RoleProtectedRoute = ({
   return <>{children}</>;
 };
 
-// Public route component (redirect to dashboard if already authenticated)
+// ----------------------
+// Public Route
+// ----------------------
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 };
 
-// Main router component
+// ----------------------
+// Main Router
+// ----------------------
 export const AppRouter = () => {
   return (
     <Routes>
@@ -80,7 +86,7 @@ export const AppRouter = () => {
         }
       />
 
-      {/* Protected routes */}
+      {/* Protected Routes */}
       <Route
         path="/"
         element={
@@ -90,48 +96,50 @@ export const AppRouter = () => {
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
-        
-        {/* Dashboard - accessible to all authenticated users */}
+
+        {/* Dashboard - all roles */}
         <Route path="dashboard" element={<Dashboard />} />
-        
-        {/* AI Assistant - accessible to all authenticated users */}
+
+        {/* Assistant - all roles */}
         <Route path="assistant" element={<Assistant />} />
-        
-        {/* Employees - VISIBLE_TO: ['ADMIN', 'HR', 'MANAGER'] */}
-        <Route 
-          path="employees" 
+
+        {/* Employees - ADMIN + HR + MANAGER */}
+        <Route
+          path="employees"
           element={
-            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]}>
+            <RoleProtectedRoute
+              allowedRoles={[UserRole.ADMIN, UserRole.HR, UserRole.MANAGER]}
+            >
               <Employees />
             </RoleProtectedRoute>
-          } 
+          }
         />
-        
-        {/* Documents - accessible to all authenticated users */}
+
+        {/* Documents - all roles can access THEIR documents */}
         <Route path="documents" element={<Documents />} />
-        
-        {/* Workflows - VISIBLE_TO: ['ADMIN', 'HR'] */}
-        <Route 
-          path="workflows" 
+
+        {/* Workflows - only ADMIN + HR */}
+        <Route
+          path="workflows"
           element={
             <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.HR]}>
               <Workflows />
             </RoleProtectedRoute>
-          } 
+          }
         />
-        
-        {/* Settings - VISIBLE_TO: ['ADMIN'] */}
-        <Route 
-          path="settings" 
+
+        {/* Settings - only ADMIN */}
+        <Route
+          path="settings"
           element={
             <RoleProtectedRoute allowedRoles={[UserRole.ADMIN]}>
               <Settings />
             </RoleProtectedRoute>
-          } 
+          }
         />
       </Route>
 
-      {/* 404 route */}
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
