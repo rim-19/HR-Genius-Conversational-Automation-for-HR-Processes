@@ -1,27 +1,26 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import { prisma } from "./prisma/client";
+
+
+// backend/src/server.ts
+import express from 'express';
+import dotenv from 'dotenv';
+import userRoutes from './routes/userRoutes';
+// import other routes if ready
+// import employeeRoutes from './routes/employeeRoutes';
+import documentRoutes from './routes/documentRoutes';
+
+
+
 
 dotenv.config();
+
 const app = express();
-
-app.use(cors());
 app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("HR-Genius backend running with TypeScript ✅ Hiii Riiim AAAAA our project is startinggg m exciteeeed");
-});
-
-
-app.get("/employees", async (req: Request, res: Response) => {
-  try {
-    const employees = await prisma.employee.findMany();
-    res.json(employees);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch employees" });
-  }
-});
+app.use('/api/documents', documentRoutes);
+// Register API routes
+app.use('/api', userRoutes);
+// app.use('/api/employees', employeeRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running at: http://localhost:${PORT}`);
+});

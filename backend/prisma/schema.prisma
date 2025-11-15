@@ -1,44 +1,81 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// HR-Genius Database Schema
 
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  HR
+  MANAGER
+  EMPLOYEE
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("Employee")
-  createdAt DateTime @default(now())
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  role        Role         @default(EMPLOYEE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  employeesCreated Employee[] @relation("CreatedByUser")
+  managedEmployees Employee[] @relation("ManagerUser")
+  documents       Document[]  @relation("UserDocuments")
+  actions         ActionLog[] @relation("UserActions")
 }
 
 model Employee {
-  id          Int       @id @default(autoincrement())
-  name        String
-  department  String
-  position    String
-  salary      Float
-  joinDate    DateTime   @default(now())
-  documents   Document[]
+  id           Int        @id @default(autoincrement())
+  name         String
+  email        String     @unique
+  position     String
+  department   String?
+  salary       Float?
+  joinedAt     DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  managerId    Int?
+  manager      User?      @relation("ManagerUser", fields: [managerId], references: [id])
+
+  createdById  Int?
+  createdBy    User?      @relation("CreatedByUser", fields: [createdById], references: [id])
+
+  documents    Document[]
 }
 
 model Document {
-  id          Int       @id @default(autoincrement())
-  employeeId  Int
-  filePath    String
-  type        String
-  createdAt   DateTime  @default(now())
-  Employee    Employee  @relation(fields: [employeeId], references: [id])
+  id           Int        @id @default(autoincrement())
+  title        String
+  type         String
+  fileUrl      String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  employeeId   Int
+  employee     Employee   @relation(fields: [employeeId], references: [id])
+
+  createdById  Int?
+  createdBy    User?      @relation("UserDocuments", fields: [createdById], references: [id])
 }
 
-model Workflow {
-  id         Int      @id @default(autoincrement())
-  name       String
-  jsonData   Json
-  createdAt  DateTime @default(now())
-  createdBy  Int
+model ActionLog {
+  id           Int        @id @default(autoincrement())
+  action       String
+  description  String?
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  userId       Int
+  user         User       @relation("UserActions", fields: [userId], references: [id])
 }
