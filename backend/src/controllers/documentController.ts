@@ -22,14 +22,14 @@ export const getDocuments = async (req: Request, res: Response) => {
       documents = await prisma.document.findMany({
         where: {
           employee: {
-            managerId: user.id, 
+            managerId: user.userId, 
           },
         },
         include: { employee: true },
       });
     } else if (user.role === Role.EMPLOYEE) {
       documents = await prisma.document.findMany({
-        where: { employeeId: user.id },
+        where: { employeeId: user.userId },
         include: { employee: true },
       });
     } else {
@@ -60,10 +60,10 @@ export const getDocumentById = async (req: Request, res: Response) => {
     }
 
     // RBAC
-    if (user.role === Role.MANAGER && document.employee.managerId !== user.id)
+    if (user.role === Role.MANAGER && document.employee.managerId !== user.userId)
       return res.status(403).json({ message: 'Not authorized' });
 
-    if (user.role === Role.EMPLOYEE && document.employeeId !== user.id)
+    if (user.role === Role.EMPLOYEE && document.employeeId !== user.userId)
       return res.status(403).json({ message: 'Not authorized' });
 
     res.json(document);
@@ -91,7 +91,7 @@ export const createDocument = async (req: Request, res: Response) => {
         type,
         fileUrl,
         employeeId,
-        createdById: user.id,
+        createdById: user.userId,
       },
     });
 
@@ -172,7 +172,7 @@ export const generateDocument = async (req: Request, res: Response) => {
         type,
         fileUrl: filePath,
         employeeId,
-        createdById: user.id,
+        createdById: user.userId,
       },
     });
 

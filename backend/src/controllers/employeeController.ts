@@ -19,7 +19,7 @@ export const getEmployees = async (req: Request, res: Response) => {
     } else if (user.role === Role.MANAGER) {
       // Only employees managed by this manager
       employees = await prisma.employee.findMany({
-        where: { managerId: user.id },
+        where: { managerId: user.userId },
         include: { manager: true },
       });
     } else {
@@ -50,7 +50,7 @@ export const getEmployeeById = async (req: Request, res: Response) => {
     }
 
     // Managers can ONLY see employees they manage
-    if (user.role === Role.MANAGER && employee.managerId !== user.id) {
+    if (user.role === Role.MANAGER && employee.managerId !== user.userId) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
@@ -81,7 +81,7 @@ export const createEmployee = async (req: Request, res: Response) => {
         department,
         salary,
         managerId: managerId || null,
-        createdById: user.id,
+        createdById: user.userId,
       },
     });
 

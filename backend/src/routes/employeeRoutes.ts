@@ -13,10 +13,6 @@ import { Role } from '@prisma/client';
 
 const router = Router();
 
-// -----------------------------
-// ROUTES
-// -----------------------------
-
 // Get all employees
 router.get(
   '/',
@@ -58,3 +54,9 @@ router.delete(
 );
 
 export default router;
+
+
+
+
+
+
