@@ -2,27 +2,79 @@
 
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'path';
+import axios from 'axios';
 
+// Routes
 import userRoutes from './routes/userRoutes';
 import documentRoutes from './routes/documentRoutes';
-import employeeRoutes from './routes/employeeRoutes'; // ENABLED
+import employeeRoutes from './routes/employeeRoutes';
+import aiRoutes from "./routes/aiRoutes";
+
 
 dotenv.config();
 
 const app = express();
-
-// Middleware
 app.use(express.json());
 
-// Routes
+// -----------------------------------------------------------
+// 1️⃣ STATIC FILES — Serve PDFs from /public/docs
+// -----------------------------------------------------------
+app.use('/docs', express.static(path.join(__dirname, '../public/docs')));
+
+// -----------------------------------------------------------
+// 2️⃣ API ROUTES
+// -----------------------------------------------------------
 app.use('/api', userRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/employees', employeeRoutes); // ENABLED
+app.use('/api/employees', employeeRoutes);
+app.use("/api/ai", aiRoutes);
 
-// Server port
+
+// -----------------------------------------------------------
+// 3️⃣ TEST ROUTE TO TRIGGER N8N WORKFLOW
+// -----------------------------------------------------------
+app.get('/test-n8n', async (req, res) => {
+  try {
+    const payload = {
+      employee: {
+        id: 99,
+        name: "Test User",
+        email: "youssrarimyassmine@gmail.com",
+      },
+      documentType: "promotion",
+      data: {
+        promotionDate: "2025-01-01",
+        newPosition: "Team Lead",
+      },
+      // IMPORTANT → PDF served by your backend
+      pdfUrl: "http://127.0.0.1:5000/docs/test.pdf"
+    };
+
+    const webhookUrl = "http://127.0.0.1:5678/webhook/send-document-pdf";
+
+    const response = await axios.post(webhookUrl, payload);
+
+    return res.status(200).json({
+      success: true,
+      message: "n8n workflow triggered successfully",
+      n8nResponse: response.data,
+    });
+
+  } catch (error:any) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      details: error?.response?.data || "Error in workflow",
+    });
+  }
+});
+
+// -----------------------------------------------------------
+// 4️⃣ START SERVER — use IPv4 so n8n + curl work on Windows
+// -----------------------------------------------------------
 const PORT = process.env.PORT || 5000;
 
-// IMPORTANT FIX: force IPv4 so that Windows CMD/PowerShell/cURL/n8n can connect
 app.listen(Number(PORT), '127.0.0.1', () => {
-  console.log(`🚀 Server is running on http://127.0.0.1:${PORT}`);
+  console.log(`🚀 Server running at http://127.0.0.1:${PORT}`);
 });

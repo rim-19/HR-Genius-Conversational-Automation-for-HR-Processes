@@ -13,12 +13,13 @@ async function main() {
   const passwordPlain = 'Password123!';
   const hashed = await bcrypt.hash(passwordPlain, 10);
 
-  const systemUsers = [
-    { name: 'Admin User', email: 'admin@hrgenius.local', role: Role.ADMIN },
-    { name: 'HR User', email: 'hr@hrgenius.local', role: Role.HR },
-    { name: 'Manager User', email: 'manager@hrgenius.local', role: Role.MANAGER },
-    { name: 'Employee User', email: 'employee@hrgenius.local', role: Role.EMPLOYEE },
-  ];
+ const systemUsers = [
+  { name: 'Admin User', email: 'elrhezzalrim@gmail.com', role: Role.ADMIN },
+  { name: 'HR User', email: 'youssrazahafy@gmail.com', role: Role.HR },
+  { name: 'Manager User', email: 'prettiestrim.web@gmail.com', role: Role.MANAGER },
+  { name: 'Employee User', email: 'youssrarimyassmine@gmail.com', role: Role.EMPLOYEE },
+];
+
 
   for (const u of systemUsers) {
     const exists = await prisma.user.findUnique({ where: { email: u.email } });
