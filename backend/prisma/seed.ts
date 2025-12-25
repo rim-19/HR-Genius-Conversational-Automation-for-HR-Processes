@@ -39,8 +39,13 @@ async function main() {
   }
 
   // Get real relations
-  const hr = await prisma.user.findUnique({ where: { email: 'hr@hrgenius.local' } });
-  const manager = await prisma.user.findUnique({ where: { email: 'manager@hrgenius.local' } });
+  const hr = await prisma.user.findUnique({
+  where: { email: "youssrazahafy@gmail.com" },
+});
+
+const manager = await prisma.user.findUnique({
+  where: { email: "prettiestrim.web@gmail.com" },
+});
 
   // -----------------------------------------
   // CREATE 80 FAKE EMPLOYEES

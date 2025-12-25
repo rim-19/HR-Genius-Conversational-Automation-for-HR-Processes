@@ -7,15 +7,18 @@ const prompt = new PromptTemplate({
   template: `
 You are an HR assistant.
 
-Analyze the HR request below and return ONLY valid JSON.
+You MUST return ONLY raw JSON.
+NO markdown.
+NO backticks.
+NO explanations.
 
-JSON format:
-{
+Strict JSON format:
+{{
   "intent": "generate_document",
   "documentType": "promotion | salary | leave | employment",
   "employeeName": "string",
-  "extraData": { "any": "optional" }
-}
+  "extraData": {{}}
+}}
 
 HR request:
 {input}
@@ -31,6 +34,25 @@ const chain = new LLMChain({
 export async function extractHRIntent(input: string) {
   const result = await chain.call({ input });
 
-  const parsed = JSON.parse(result.text);
+  const raw = result.text.trim();
+
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+
+  if (start === -1 || end === -1) {
+    console.error("LLM OUTPUT:", raw);
+    throw new Error("LLM did not return JSON");
+  }
+
+  const jsonString = raw.slice(start, end + 1);
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonString);
+  } catch (e) {
+    console.error("INVALID JSON:", jsonString);
+    throw new Error("Invalid JSON from LLM");
+  }
+
   return HRIntentSchema.parse(parsed);
 }

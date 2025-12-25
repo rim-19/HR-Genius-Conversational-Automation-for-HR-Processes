@@ -74,6 +74,7 @@ model ActionLog {
   action       String
   description  String?
   createdAt    DateTime   @default(now())
+  
 
   // Relations
   userId       Int
