@@ -3,6 +3,7 @@ import { ActionType } from "./actionTypes";
 import { ExecutionContext } from "./context";
 import { prisma } from "../prisma/client";
 import { generatePDF } from "../utils/fileGenerator";
+import { generateDocumentContent } from "../ai/contentGenerator";
 import axios from "axios";
 
 export async function executeActions(
@@ -73,14 +74,11 @@ export async function executeActions(
 
         const title = `${documentType.toUpperCase()} DOCUMENT`;
 
-        const content = `
-Employee: ${ctx.employee.name}
-Position: ${ctx.employee.position}
-Department: ${ctx.employee.department}
-
-Generated automatically by HR-Genius.
-`;
-
+        const content = await generateDocumentContent({
+  documentType,
+  employee: ctx.employee,
+  extraData: ctx.intent?.extraData,
+});
         const fileName = `${documentType}_${ctx.employee.id}_${Date.now()}.pdf`;
 
         const pdfPath = await generatePDF(title, content, fileName);
