@@ -20,7 +20,12 @@ app.use(express.json());
 // -----------------------------------------------------------
 // 1️⃣ STATIC FILES — Serve PDFs from /public/docs
 // -----------------------------------------------------------
-app.use('/docs', express.static(path.join(__dirname, '../public/docs')));
+// Serve generated PDFs
+app.use(
+  "/docs",
+  express.static(path.join(__dirname, "..", "generated"))
+);
+
 
 // -----------------------------------------------------------
 // 2️⃣ API ROUTES

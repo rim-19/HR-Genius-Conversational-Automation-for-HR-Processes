@@ -1,6 +1,11 @@
-import { BufferMemory } from "langchain/memory";
+export interface ConversationMemory {
+  lastEmployee?: {
+    id: number;
+    name: string;
+    email?: string;
+  };
 
-export const memory = new BufferMemory({
-  memoryKey: "chat_history",
-  returnMessages: true,
-});
+  lastDocumentType?: string;
+
+  lastIntent?: string;
+}

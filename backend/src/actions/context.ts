@@ -9,4 +9,7 @@ export interface ExecutionContext {
     role: string;
     email?: string;
   };
+   system: {
+    today: string;
+  };
 }

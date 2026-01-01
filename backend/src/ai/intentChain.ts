@@ -7,18 +7,31 @@ const prompt = new PromptTemplate({
   template: `
 You are an HR assistant.
 
-You MUST return ONLY raw JSON.
+You MUST return ONLY valid JSON.
 NO markdown.
 NO backticks.
 NO explanations.
 
-Strict JSON format:
-{{
+The JSON MUST follow this structure exactly:
+
+{
   "intent": "generate_document",
   "documentType": "promotion | salary | leave | employment",
   "employeeName": "string",
-  "extraData": {{}}
-}}
+
+  "extraData": {
+    "position": "string | null",
+    "salary": "number | null",
+    "salaryIncrease": "number | null"
+  }
+}
+
+Rules:
+- If a new role/title is mentioned, put it in "position"
+- If an absolute salary is mentioned (e.g. 20000), put it in "salary"
+- If a percentage is mentioned (e.g. 10%), put it in "salaryIncrease"
+- Use numbers only for salary values (NO text, NO currency)
+- If a field is not mentioned, set it to null
 
 HR request:
 {input}
@@ -54,5 +67,19 @@ export async function extractHRIntent(input: string) {
     throw new Error("Invalid JSON from LLM");
   }
 
-  return HRIntentSchema.parse(parsed);
+  // 🔒 Normalize numeric fields
+if (parsed.extraData) {
+  if (parsed.extraData.salary !== null) {
+    parsed.extraData.salary = Number(parsed.extraData.salary);
+  }
+
+  if (parsed.extraData.salaryIncrease !== null) {
+    parsed.extraData.salaryIncrease = Number(parsed.extraData.salaryIncrease);
+  }
 }
+
+
+  return HRIntentSchema.parse(parsed);
+  
+}
+

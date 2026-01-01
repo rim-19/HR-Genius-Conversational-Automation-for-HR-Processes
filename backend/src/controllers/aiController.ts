@@ -1,3 +1,5 @@
+// backend/src/controllers/aiController.ts
+
 import { Request, Response } from "express";
 import { extractHRIntent } from "../ai/intentChain";
 import { planActions } from "../actions/planner";
@@ -5,15 +7,29 @@ import { executeActions } from "../actions/executor";
 import { ExecutionContext } from "../actions/context";
 
 export async function aiController(req: Request, res: Response) {
+  console.log("🟢 AI CONTROLLER — START");
+
   try {
-    console.log("▶ AI CONTROLLER START");
+    // 0️⃣ Input validation
+    if (!req.body?.message) {
+      throw new Error("Missing message in request body");
+    }
 
-    // 1️⃣ Intent
+    console.log("🟢 STEP 0 — MESSAGE:", req.body.message);
+
+    // 1️⃣ Intent extraction
     const intent = await extractHRIntent(req.body.message);
-    console.log("✔ INTENT:", intent);
+    console.log("🟢 STEP 1 — INTENT EXTRACTED:", intent);
 
-    // 2️⃣ Context
-    if (!req.user) throw new Error("User missing in request");
+    // 2️⃣ Auth context
+    if (!req.user) {
+      throw new Error("User missing in request (auth middleware issue)");
+    }
+const today = new Date().toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "long",
+  year: "numeric",
+});
 
     const ctx: ExecutionContext = {
       intent,
@@ -22,28 +38,41 @@ export async function aiController(req: Request, res: Response) {
         role: req.user.role,
         email: req.user.email,
       },
+     system: {
+    today: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+  },
     };
 
-    console.log("✔ CONTEXT:", ctx);
+    console.log("🟢 STEP 2 — CONTEXT CREATED:", ctx);
 
-    // 3️⃣ Plan
+    // 3️⃣ Planning
     const actions = planActions(intent);
-    console.log("✔ ACTIONS PLAN:", actions);
+    console.log("🟢 STEP 3 — ACTION PLAN:", actions);
 
-    // 4️⃣ Execute
+    // 4️⃣ Execution
     const finalCtx = await executeActions(actions, ctx);
-    console.log("✔ FINAL CONTEXT:", finalCtx);
+    console.log("🟢 STEP 4 — EXECUTION COMPLETE:", finalCtx);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       intent,
       actions,
       result: finalCtx,
     });
+
   } catch (err: any) {
-    console.error("❌ AI ERROR:", err);
+    console.error("🔴 AI PIPELINE FAILURE");
+
+    console.error({
+      message: err.message,
+      stage: err.stage || "unknown",
+      stack: err.stack,
+    });
+
     return res.status(500).json({
-      error: err.message || "AI processing failed",
+      success: false,
+      errorStage: err.stage || "unknown",
+      error: err.message,
     });
   }
 }
