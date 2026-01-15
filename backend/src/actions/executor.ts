@@ -18,6 +18,68 @@ export async function executeActions(
 
       switch (action.type) {
 
+     case ActionType.CREATE_ENTITY: {
+  const payload = action.payload;
+
+  if (!payload.name || !payload.position || !payload.department || !payload.email) {
+    throw new Error("Missing required employee fields");
+  }
+
+  const createdEmployee = await prisma.employee.create({
+    data: {
+      name: payload.name,
+      position: payload.position,
+      department: payload.department,
+      salary: payload.salary ?? 0,
+      email: payload.email,
+      createdById: ctx.user.id,
+    },
+  });
+
+  // ✅ CRITICAL FIX
+  ctx.employee = createdEmployee;
+
+  console.log("✅ EMPLOYEE CREATED & CONTEXT UPDATED:", ctx.employee);
+
+  break;
+}
+
+
+
+
+case ActionType.DELETE_ENTITY: {
+  if (!ctx.employee) {
+    throw new Error("Employee must be loaded before deletion");
+  }
+
+  await prisma.employee.delete({
+    where: { id: ctx.employee.id },
+  });
+
+  ctx.employeeDeleted = true;
+  break;
+}
+
+case ActionType.MULTI_READ_ENTITY: {
+  const filters = action.payload.filters ?? {};
+
+  ctx.employees = await prisma.employee.findMany({
+    where: filters,
+    orderBy: { createdAt: "desc" },
+  });
+
+  break;
+}
+
+case ActionType.NOTIFY: {
+  if (!ctx.employee?.email) {
+    console.log("ℹ️ No email target, skipping notification");
+    break;
+  }
+  // send email
+}
+
+
         // =========================
         // READ EMPLOYEE
         // =========================

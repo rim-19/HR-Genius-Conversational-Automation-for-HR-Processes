@@ -1,6 +1,6 @@
+import { Employee } from "@prisma/client";
 export interface ExecutionContext {
   intent?: any;
-  employee?: any;
   pdfPath?: string;
   pdfUrl?: string;
 
@@ -12,4 +12,15 @@ export interface ExecutionContext {
    system: {
     today: string;
   };
+  employee?: any;
+  employeeDeleted?: boolean;
+
+  // 🔹 Multiple employees (LIST / SEARCH)
+  employees?: Employee[];
+
+
 }
+
+
+
+

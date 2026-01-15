@@ -9,35 +9,37 @@ You are an HR assistant.
 
 You MUST return ONLY valid JSON.
 NO markdown.
-NO backticks.
 NO explanations.
 
-The JSON MUST follow this structure exactly:
+JSON format:
 
-{
-  "intent": "generate_document",
-  "documentType": "promotion | salary | leave | employment",
-  "employeeName": "string",
-
-  "extraData": {
+{{
+  "intent": "create_employee | update_employee | delete_employee | generate_document | list_employees",
+  "employeeName": "string | null",
+  "documentType": "promotion | salary | leave | employment | null",
+  "extraData": {{
     "position": "string | null",
     "salary": "number | null",
-    "salaryIncrease": "number | null"
-  }
-}
+    "salaryIncrease": "number | null",
+    "department": "string | null",
+    "email": "string | null"
+  }}
+}}
 
 Rules:
-- If a new role/title is mentioned, put it in "position"
-- If an absolute salary is mentioned (e.g. 20000), put it in "salary"
-- If a percentage is mentioned (e.g. 10%), put it in "salaryIncrease"
-- Use numbers only for salary values (NO text, NO currency)
-- If a field is not mentioned, set it to null
+- If adding a new employee → intent = "create_employee"
+- For CREATE, you MUST infer missing fields if possible:
+  - department → "IT" if not mentioned
+  - email → lowercase firstname.lastname@gmail.com
+- Absolute salary → extraData.salary
+- Use null if unknown
 
 HR request:
 {input}
 `,
   inputVariables: ["input"],
 });
+
 
 const chain = new LLMChain({
   llm,

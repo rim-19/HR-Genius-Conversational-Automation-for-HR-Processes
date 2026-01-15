@@ -1,6 +1,6 @@
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { llm } from "./llm";
-import { memory } from "./memory";
+import { ConversationMemory } from "./memory";
 import {
   readEntity,
   updateEntity,
