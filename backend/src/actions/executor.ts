@@ -6,6 +6,7 @@ import { ExecutionContext } from "./context";
 import { prisma } from "../prisma/client";
 import { generatePDF } from "../utils/fileGenerator";
 import { generateDocumentContent } from "../ai/contentGenerator";
+import { AppError } from "../utils/AppError";
 import axios from "axios";
 
 export async function executeActions(
@@ -22,7 +23,7 @@ export async function executeActions(
   const payload = action.payload;
 
   if (!payload.name || !payload.position || !payload.department || !payload.email) {
-    throw new Error("Missing required employee fields");
+    throw AppError.validation("Missing required employee fields", "executor");
   }
 
   const createdEmployee = await prisma.employee.create({
@@ -49,7 +50,7 @@ export async function executeActions(
 
 case ActionType.DELETE_ENTITY: {
   if (!ctx.employee) {
-    throw new Error("Employee must be loaded before deletion");
+    throw AppError.validation("Employee must be loaded before deletion", "executor");
   }
 
   await prisma.employee.delete({
@@ -71,44 +72,77 @@ case ActionType.MULTI_READ_ENTITY: {
   break;
 }
 
-case ActionType.NOTIFY: {
-  if (!ctx.employee?.email) {
-    console.log("ℹ️ No email target, skipping notification");
-    break;
-  }
-  // send email
+case ActionType.MULTI_READ_DOCUMENT: {
+  const filters = action.payload.filters ?? {};
+
+  ctx.documents = await prisma.document.findMany({
+    where: filters,
+    orderBy: { createdAt: "desc" },
+    include: {
+      employee: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        }
+      }
+    }
+  });
+
+  break;
 }
 
 
+
         // =========================
-        // READ EMPLOYEE
-        // =========================
-        case ActionType.READ_ENTITY: {
-          const { identifier } = action.payload;
+      // =========================
+// READ EMPLOYEE (SAFE)
+// =========================
+case ActionType.READ_ENTITY: {
+  // Guard 1: never overwrite an existing employee (especially after CREATE)
+  if (ctx.employee) {
+    console.log("ℹ️ READ_ENTITY skipped: ctx.employee already set");
+    break;
+  }
 
-          const employee = await prisma.employee.findFirst({
-            where: {
-              name: {
-                contains: identifier,
-                mode: "insensitive",
-              },
-            },
-          });
+  const identifier: string | undefined = action.payload?.identifier;
 
-          if (!employee) {
-            throw new Error(`Employee not found: ${identifier}`);
-          }
+  // Guard 2: identifier is mandatory
+  if (!identifier || identifier.trim().length < 3) {
+    throw AppError.validation("READ_ENTITY requires a non-empty, specific identifier", "executor");
+  }
 
-          ctx.employee = employee;
-          break;
-        }
+  // Guard 3: never use findFirst without strict selector
+  const employees = await prisma.employee.findMany({
+    where: {
+      name: {
+        contains: identifier.trim(),
+        mode: "insensitive",
+      },
+    },
+    take: 2, // detect ambiguity
+  });
+
+  if (employees.length === 0) {
+    throw AppError.notFound(`Employee not found: ${identifier}`, "executor");
+  }
+  if (employees.length > 1) {
+    throw AppError.validation(`Ambiguous employee identifier: ${identifier}`, "executor");
+  }
+
+  ctx.employee = employees[0];
+  
+
+  break;
+}
+
 
         // =========================
         // UPDATE EMPLOYEE
         // =========================
        case ActionType.UPDATE_ENTITY: {
   if (!ctx.employee) {
-    throw new Error("Employee must be loaded before update");
+    throw AppError.validation("Employee must be loaded before update", "executor");
   }
 
   const rawData = action.payload.data || {};
@@ -126,10 +160,10 @@ case ActionType.NOTIFY: {
   // Example: "set salary to 20000"
   // ─────────────────────────────
   if (rawData.salary !== undefined) {
-    const salary = Number(rawData.salary);
+    const salary = Number(rawData.salary); 
 
     if (!Number.isFinite(salary)) {
-      throw new Error("Invalid salary value");
+      throw AppError.validation("Invalid salary value", "executor");
     }
 
     updateData.salary = salary;
@@ -144,7 +178,7 @@ case ActionType.NOTIFY: {
     const percent = Number(rawData.salaryIncrease);
 
     if (!Number.isFinite(percent)) {
-      throw new Error("Invalid salaryIncrease value");
+      throw AppError.validation("Invalid salaryIncrease value", "executor");
     }
 
     updateData.salary = Math.round(
@@ -178,7 +212,7 @@ case ActionType.NOTIFY: {
         // GENERATE DOCUMENT
         // =========================
        case ActionType.GENERATE_DOCUMENT: {
-        if (!ctx.employee) throw new Error("Employee missing");
+        if (!ctx.employee) throw AppError.validation("Employee missing", "executor");
 
         // 🔥 AI WRITES THE LETTER
         const aiContent = await generateDocumentContent({
@@ -210,14 +244,18 @@ case ActionType.NOTIFY: {
         // =========================
         // NOTIFY (n8n)
         // =========================
-        case ActionType.NOTIFY: {
+        // =========================
+// NOTIFY (n8n) — CANONICAL
+// =========================
+case ActionType.NOTIFY: {
   if (!ctx.employee || !ctx.employee.email) {
-    throw new Error("NOTIFY failed: employee email missing");
+    throw AppError.validation("NOTIFY failed: employee email missing", "executor");
   }
-console.log("📧 NOTIFY PAYLOAD:", {
-  employee: ctx.employee,
-  pdfUrl: ctx.pdfUrl,
-});
+
+  console.log("📧 NOTIFY PAYLOAD:", {
+    employee: ctx.employee,
+    pdfUrl: ctx.pdfUrl,
+  });
 
   await axios.post(process.env.N8N_WEBHOOK_URL!, {
     employee: ctx.employee,
@@ -225,8 +263,9 @@ console.log("📧 NOTIFY PAYLOAD:", {
     pdfUrl: ctx.pdfUrl,
   });
 
-  return ctx;
+  break; // do NOT return early; let LOG_ACTION run
 }
+
 
 
         // =========================
@@ -244,11 +283,11 @@ console.log("📧 NOTIFY PAYLOAD:", {
         }
 
         default:
-          throw new Error(`Unknown action type: ${action.type}`);
+          throw AppError.internal(`Unknown action type: ${action.type}`, "executor");
       }
 
     } catch (err: any) {
-      err.stage = `executor:${action.type}`;
+      err.stage = err.stage || `executor:${action.type}`;
       throw err;
     }
   }

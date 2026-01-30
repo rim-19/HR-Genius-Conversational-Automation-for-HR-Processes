@@ -30,6 +30,7 @@ model User {
   managedEmployees Employee[] @relation("ManagerUser")
   documents       Document[]  @relation("UserDocuments")
   actions         ActionLog[] @relation("UserActions")
+  conversationMemory ConversationMemory?
 }
 
 model Employee {
@@ -79,4 +80,13 @@ model ActionLog {
   // Relations
   userId       Int
   user         User       @relation("UserActions", fields: [userId], references: [id])
+}
+
+model ConversationMemory {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  memory    Json
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }

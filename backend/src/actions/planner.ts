@@ -1,7 +1,64 @@
 import { Action } from "./action";
 import { ActionType } from "./actionTypes";
+import { AppError } from "../utils/AppError";
 
-export function planActions(intent: any): Action[] {
+// =========================
+// ROLE GUARD (HARD ENFORCEMENT)
+// =========================
+function assertRoleAllowed(
+  role: "ADMIN" | "HR" | "MANAGER" | "EMPLOYEE",
+  intentName: string
+) {
+  const permissions: Record<typeof role, string[]> = {
+    ADMIN: [
+      "create_employee",
+      "update_employee",
+      "delete_employee",
+      "generate_document",
+      "list_employees",
+      "list_documents",
+    ],
+    HR: [
+      "create_employee",
+      "update_employee",
+      "delete_employee",
+      "generate_document",
+      "list_employees",
+      "list_documents",
+    ],
+    MANAGER: [
+      "update_employee",
+      "generate_document",
+      "list_employees",
+      "list_documents",
+    ],
+    EMPLOYEE: [
+      "list_employees",
+      "list_documents",
+    ],
+  };
+
+  const allowedIntents = permissions[role] ?? [];
+
+  if (!allowedIntents.includes(intentName)) {
+    throw AppError.forbidden(
+      `Forbidden: role '${role}' cannot perform '${intentName}'`,
+      "planner"
+    );
+  }
+}
+
+// =========================
+// ACTION PLANNER
+// =========================
+export function planActions(
+  intent: any,
+  userRole: "ADMIN" | "HR" | "MANAGER" | "EMPLOYEE"
+): Action[] {
+
+  // 🔐 Enforce role BEFORE planning anything
+  assertRoleAllowed(userRole, intent.intent);
+
   const actions: Action[] = [];
 
   // 🧠 CREATE EMPLOYEE
@@ -34,6 +91,28 @@ export function planActions(intent: any): Action[] {
       payload: { intent },
     });
 
+    return actions;
+  }
+
+  // 🧠 LIST EMPLOYEES
+  if (intent.intent === "list_employees") {
+    actions.push({
+      type: ActionType.MULTI_READ_ENTITY,
+      payload: {
+        filters: intent.extraData?.filters || {}
+      }
+    });
+    return actions;
+  }
+
+  // 🧠 LIST DOCUMENTS
+  if (intent.intent === "list_documents") {
+    actions.push({
+      type: ActionType.MULTI_READ_DOCUMENT,
+      payload: {
+        filters: intent.extraData?.filters || {}
+      }
+    });
     return actions;
   }
 

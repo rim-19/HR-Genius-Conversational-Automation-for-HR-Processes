@@ -1,4 +1,4 @@
-import { Employee } from "@prisma/client";
+import { Employee, Document } from "@prisma/client";
 export interface ExecutionContext {
   intent?: any;
   pdfPath?: string;
@@ -17,6 +17,9 @@ export interface ExecutionContext {
 
   // 🔹 Multiple employees (LIST / SEARCH)
   employees?: Employee[];
+
+  // 🔹 Multiple documents (LIST / SEARCH)
+  documents?: (Document & { employee: { id: number; name: string; email: string } })[];
 
 
 }

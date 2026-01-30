@@ -11,6 +11,9 @@ import documentRoutes from './routes/documentRoutes';
 import employeeRoutes from './routes/employeeRoutes';
 import aiRoutes from "./routes/aiRoutes";
 
+// Error handling
+import { errorHandler } from './middlewares/errorHandler';
+
 
 dotenv.config();
 
@@ -34,6 +37,11 @@ app.use('/api', userRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use("/api/ai", aiRoutes);
+
+// -----------------------------------------------------------
+// 3️⃣ GLOBAL ERROR HANDLER - Must be last
+// -----------------------------------------------------------
+app.use(errorHandler);
 
 
 // -----------------------------------------------------------

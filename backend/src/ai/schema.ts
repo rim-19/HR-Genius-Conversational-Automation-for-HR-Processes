@@ -11,9 +11,10 @@ export const HRIntentSchema = z.object({
 
   documentType: z.enum([
     "promotion",
-    "salary",
+    "salary", 
     "leave",
     "employment",
+    "custom",
   ]).optional(),
 
   employeeName: z.string().optional(),

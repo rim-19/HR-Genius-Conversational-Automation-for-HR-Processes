@@ -1,36 +1,41 @@
-// backend/src/controllers/aiController.ts
-
 import { Request, Response } from "express";
 import { extractHRIntent } from "../ai/intentChain";
 import { planActions } from "../actions/planner";
 import { executeActions } from "../actions/executor";
 import { ExecutionContext } from "../actions/context";
+import { loadMemory, saveMemory } from "../ai/memory";
+import { generateAIResponse } from "../ai/responseGenerator";
+import { AppError } from "../utils/AppError";
 
 export async function aiController(req: Request, res: Response) {
-  console.log("🟢 AI CONTROLLER — START");
-
   try {
-    // 0️⃣ Input validation
+    // 0️⃣ Validate input
     if (!req.body?.message) {
-      throw new Error("Missing message in request body");
+      throw AppError.validation("Missing message in request body", "aiController");
     }
 
-    console.log("🟢 STEP 0 — MESSAGE:", req.body.message);
-
-    // 1️⃣ Intent extraction
-    const intent = await extractHRIntent(req.body.message);
-    console.log("🟢 STEP 1 — INTENT EXTRACTED:", intent);
-
-    // 2️⃣ Auth context
     if (!req.user) {
-      throw new Error("User missing in request (auth middleware issue)");
+      throw AppError.unauthorized("User missing in request (auth middleware issue)", "aiController");
     }
-const today = new Date().toLocaleDateString("en-GB", {
-  day: "2-digit",
-  month: "long",
-  year: "numeric",
-});
 
+    const userId = req.user.userId;
+
+    // 1️⃣ Load backend conversational memory
+    const memory = await loadMemory(userId);
+
+    // 2️⃣ Extract intent via LangChain
+    const intent = await extractHRIntent(req.body.message);
+
+    // 3️⃣ Enrich intent using backend memory (ONLY if missing)
+    if (!intent.employeeName && memory.lastEmployee) {
+      intent.employeeName = memory.lastEmployee.name;
+    }
+
+    if (!intent.documentType && memory.lastDocumentType) {
+      intent.documentType = memory.lastDocumentType;
+    }
+
+    // 4️⃣ Build execution context
     const ctx: ExecutionContext = {
       intent,
       user: {
@@ -38,41 +43,50 @@ const today = new Date().toLocaleDateString("en-GB", {
         role: req.user.role,
         email: req.user.email,
       },
-     system: {
-    today: new Date().toISOString().split("T")[0], // YYYY-MM-DD
-  },
+      system: {
+        today: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+      },
     };
 
-    console.log("🟢 STEP 2 — CONTEXT CREATED:", ctx);
+    // 5️⃣ Plan actions
+    const actions = planActions(intent, req.user.role);
 
-    // 3️⃣ Planning
-    const actions = planActions(intent);
-    console.log("🟢 STEP 3 — ACTION PLAN:", actions);
 
-    // 4️⃣ Execution
+    // 6️⃣ Execute actions
     const finalCtx = await executeActions(actions, ctx);
-    console.log("🟢 STEP 4 — EXECUTION COMPLETE:", finalCtx);
 
+    // 7️⃣ Generate AI response based on execution results
+    const aiMessage = await generateAIResponse(finalCtx);
+
+    // 8️⃣ Update backend memory
+    await saveMemory(userId, {
+      lastEmployee: finalCtx.employee
+        ? {
+            id: finalCtx.employee.id,
+            name: finalCtx.employee.name,
+            email: finalCtx.employee.email,
+          }
+        : memory.lastEmployee,
+      lastDocumentType: intent.documentType ?? memory.lastDocumentType,
+      lastIntent: intent.intent,
+    });
+
+    // 9️⃣ Response with AI message and structured data
     return res.status(200).json({
       success: true,
-      intent,
-      actions,
-      result: finalCtx,
+      message: aiMessage,
+      data: {
+        employee: finalCtx.employee,
+        employees: finalCtx.employees,
+        documents: finalCtx.documents,
+        pdfUrl: finalCtx.pdfUrl,
+      },
     });
 
   } catch (err: any) {
-    console.error("🔴 AI PIPELINE FAILURE");
-
-    console.error({
-      message: err.message,
-      stage: err.stage || "unknown",
-      stack: err.stack,
-    });
-
-    return res.status(500).json({
-      success: false,
-      errorStage: err.stage || "unknown",
-      error: err.message,
-    });
+    if (!err.statusCode) {
+      err.stage = err.stage ?? "aiController";
+    }
+    throw err;
   }
 }
