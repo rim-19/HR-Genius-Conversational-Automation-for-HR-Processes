@@ -5,6 +5,7 @@ import {
   createDocument,
   deleteDocument,
   generateDocument,
+  downloadDocument,
 } from '../controllers/documentController';
 
 import { authenticate } from '../middlewares/authMiddleware';
@@ -27,6 +28,14 @@ router.get(
   authenticate,
   authorize(Role.ADMIN, Role.HR, Role.MANAGER, Role.EMPLOYEE),
   getDocumentById
+);
+
+// Download document
+router.get(
+  '/:id/download',
+  authenticate,
+  authorize(Role.ADMIN, Role.HR, Role.MANAGER, Role.EMPLOYEE),
+  downloadDocument
 );
 
 // Create document

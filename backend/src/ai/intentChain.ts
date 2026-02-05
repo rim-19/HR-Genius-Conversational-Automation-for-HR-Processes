@@ -14,7 +14,7 @@ NO explanations.
 JSON format:
 
 {{
-  "intent": "create_employee | update_employee | delete_employee | generate_document | list_employees",
+  "intent": "create_employee | update_employee | delete_employee | generate_document | list_employees | general_inquiry",
   "employeeName": "string | null",
   "documentType": "promotion | salary | leave | employment | null",
   "extraData": {{
@@ -28,6 +28,7 @@ JSON format:
 
 Rules:
 - If adding a new employee → intent = "create_employee"
+- If the user asks about the platform, features, or how to use the app → intent = "general_inquiry"
 - For CREATE, you MUST infer missing fields if possible:
   - department → "IT" if not mentioned
   - email → lowercase firstname.lastname@gmail.com
@@ -70,18 +71,18 @@ export async function extractHRIntent(input: string) {
   }
 
   // 🔒 Normalize numeric fields
-if (parsed.extraData) {
-  if (parsed.extraData.salary !== null) {
-    parsed.extraData.salary = Number(parsed.extraData.salary);
-  }
+  if (parsed.extraData) {
+    if (parsed.extraData.salary !== null) {
+      parsed.extraData.salary = Number(parsed.extraData.salary);
+    }
 
-  if (parsed.extraData.salaryIncrease !== null) {
-    parsed.extraData.salaryIncrease = Number(parsed.extraData.salaryIncrease);
+    if (parsed.extraData.salaryIncrease !== null) {
+      parsed.extraData.salaryIncrease = Number(parsed.extraData.salaryIncrease);
+    }
   }
-}
 
 
   return HRIntentSchema.parse(parsed);
-  
+
 }
 

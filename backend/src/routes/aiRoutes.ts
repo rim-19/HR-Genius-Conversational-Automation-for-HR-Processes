@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post(
   "/message",
-  authenticate,   // 🔐 THIS WAS MISSING
+  authenticate,
   aiController
 );
 

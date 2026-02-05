@@ -22,7 +22,7 @@ export const getDocuments = async (req: Request, res: Response) => {
       documents = await prisma.document.findMany({
         where: {
           employee: {
-            managerId: user.userId, 
+            managerId: user.userId,
           },
         },
         include: { employee: true },
@@ -163,14 +163,16 @@ export const generateDocument = async (req: Request, res: Response) => {
       .replace('{{joinedAt}}', employee.joinedAt.toDateString());
 
     const fileName = `${type}-${employee.name}-${Date.now()}`;
-    const filePath = await generatePDF(`HR Document - ${type}`, template, fileName);
+    // generatePDF returns the absolute path, we store the filename for logical access
+    const absolutePath = await generatePDF(`HR Document - ${type}`, template, fileName);
+    const relativeUrl = `/docs/${path.basename(absolutePath)}`;
 
     // Save in DB
     const doc = await prisma.document.create({
       data: {
         title: `${type} for ${employee.name}`,
         type,
-        fileUrl: filePath,
+        fileUrl: relativeUrl, // Store relative URL
         employeeId,
         createdById: user.userId,
       },
@@ -178,7 +180,38 @@ export const generateDocument = async (req: Request, res: Response) => {
 
     res.json({ message: 'Document generated', document: doc });
   } catch (error) {
+    console.error('Error generating document:', error);
     res.status(500).json({ message: 'Error generating document', error });
+  }
+};
+
+// -----------------------------
+// DOWNLOAD DOCUMENT
+// -----------------------------
+export const downloadDocument = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  try {
+    const document = await prisma.document.findUnique({
+      where: { id },
+    });
+
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    // Get absolute path from relative fileUrl
+    // fileUrl is "/docs/filename.pdf", we need to point to ".../generated/filename.pdf"
+    const fileName = path.basename(document.fileUrl);
+    const filePath = path.join(__dirname, "..", "..", "generated", fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'File not found on server' });
+    }
+
+    res.download(filePath, fileName);
+  } catch (error) {
+    res.status(500).json({ message: 'Error downloading document', error });
   }
 };
 

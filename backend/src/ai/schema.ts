@@ -7,11 +7,12 @@ export const HRIntentSchema = z.object({
     "delete_employee",
     "generate_document",
     "list_employees",
+    "general_inquiry",
   ]),
 
   documentType: z.enum([
     "promotion",
-    "salary", 
+    "salary",
     "leave",
     "employment",
     "custom",

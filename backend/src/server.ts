@@ -4,12 +4,16 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import axios from 'axios';
+import cors from 'cors';
 
 // Routes
 import userRoutes from './routes/userRoutes';
 import documentRoutes from './routes/documentRoutes';
 import employeeRoutes from './routes/employeeRoutes';
 import aiRoutes from "./routes/aiRoutes";
+import { getStats } from './controllers/statsController';
+import { getActivity } from './controllers/activityController';
+import { authenticate } from './middlewares/authMiddleware';
 
 // Error handling
 import { errorHandler } from './middlewares/errorHandler';
@@ -18,10 +22,13 @@ import { errorHandler } from './middlewares/errorHandler';
 dotenv.config();
 
 const app = express();
+
+// Enable CORS for frontend
+app.use(cors());
 app.use(express.json());
 
 // -----------------------------------------------------------
-// 1️⃣ STATIC FILES — Serve PDFs from /public/docs
+// 1️⃣ STATIC FILES — Serve PDFs from /generated
 // -----------------------------------------------------------
 // Serve generated PDFs
 app.use(
@@ -37,6 +44,8 @@ app.use('/api', userRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use("/api/ai", aiRoutes);
+app.get('/api/stats', authenticate, getStats);
+app.get('/api/activity', authenticate, getActivity);
 
 // -----------------------------------------------------------
 // 3️⃣ GLOBAL ERROR HANDLER - Must be last
@@ -61,10 +70,10 @@ app.get('/test-n8n', async (req, res) => {
         newPosition: "Team Lead",
       },
       // IMPORTANT → PDF served by your backend
-      pdfUrl: "http://127.0.0.1:5000/docs/test.pdf"
+      pdfUrl: `http://${req.hostname}:${process.env.PORT || 5000}/docs/test.pdf`
     };
 
-    const webhookUrl = "http://127.0.0.1:5678/webhook/send-document-pdf";
+    const webhookUrl = process.env.N8N_WEBHOOK_URL || "http://127.0.0.1:5678/webhook/send-document-pdf";
 
     const response = await axios.post(webhookUrl, payload);
 
@@ -74,7 +83,7 @@ app.get('/test-n8n', async (req, res) => {
       n8nResponse: response.data,
     });
 
-  } catch (error:any) {
+  } catch (error: any) {
     return res.status(500).json({
       success: false,
       error: error.message,
@@ -84,10 +93,10 @@ app.get('/test-n8n', async (req, res) => {
 });
 
 // -----------------------------------------------------------
-// 4️⃣ START SERVER — use IPv4 so n8n + curl work on Windows
+// 4️⃣ START SERVER — use 0.0.0.0 to be accessible
 // -----------------------------------------------------------
 const PORT = process.env.PORT || 5000;
 
-app.listen(Number(PORT), '127.0.0.1', () => {
-  console.log(`🚀 Server running at http://127.0.0.1:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

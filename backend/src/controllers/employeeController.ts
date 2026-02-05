@@ -7,26 +7,37 @@ import { Role } from '@prisma/client';
 // -----------------------------
 export const getEmployees = async (req: Request, res: Response) => {
   const user = req.user!;
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
   try {
-    let employees;
+    let whereClause: any = {};
 
-    if (user.role === Role.ADMIN || user.role === Role.HR) {
-      // Full access
-      employees = await prisma.employee.findMany({
-        include: { manager: true },
-      });
-    } else if (user.role === Role.MANAGER) {
-      // Only employees managed by this manager
-      employees = await prisma.employee.findMany({
-        where: { managerId: user.userId },
-        include: { manager: true },
-      });
-    } else {
+    if (user.role === Role.MANAGER) {
+      whereClause.managerId = user.userId;
+    } else if (user.role !== Role.ADMIN && user.role !== Role.HR) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    res.json(employees);
+    const [employees, total] = await Promise.all([
+      prisma.employee.findMany({
+        where: whereClause,
+        include: { manager: true },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.employee.count({ where: whereClause }),
+    ]);
+
+    res.json({
+      employees,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching employees', error });
   }

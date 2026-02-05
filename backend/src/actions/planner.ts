@@ -17,6 +17,7 @@ function assertRoleAllowed(
       "generate_document",
       "list_employees",
       "list_documents",
+      "general_inquiry",
     ],
     HR: [
       "create_employee",
@@ -25,16 +26,19 @@ function assertRoleAllowed(
       "generate_document",
       "list_employees",
       "list_documents",
+      "general_inquiry",
     ],
     MANAGER: [
       "update_employee",
       "generate_document",
       "list_employees",
       "list_documents",
+      "general_inquiry",
     ],
     EMPLOYEE: [
       "list_employees",
       "list_documents",
+      "general_inquiry",
     ],
   };
 
@@ -112,6 +116,15 @@ export function planActions(
       payload: {
         filters: intent.extraData?.filters || {}
       }
+    });
+    return actions;
+  }
+
+  // 🧠 GENERAL INQUIRY (About the app/platform)
+  if (intent.intent === "general_inquiry") {
+    actions.push({
+      type: ActionType.LOG_ACTION,
+      payload: { intent },
     });
     return actions;
   }
