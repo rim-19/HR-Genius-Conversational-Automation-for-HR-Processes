@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import EmployeeCard from "../components/EmployeeCard";
+import AddEmployeeModal from "../components/AddEmployeeModal";
 import { FiPlus, FiSearch, FiFilter } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
@@ -11,7 +12,7 @@ interface Employee {
   id: string;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   position: string;
   department: string;
   avatar?: string;
@@ -22,7 +23,7 @@ const Employees: React.FC = () => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
-  const [employees, setEmployees] = useState<any[]>([]); // Changed to any[] as per instruction
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -34,10 +35,19 @@ const Employees: React.FC = () => {
 
   const isManager = user?.role === UserRole.MANAGER;
 
+  // Get search params from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("search");
+    if (search) {
+      setSearchQuery(search);
+    }
+  }, []);
+
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
-      const response = await employeesAPI.getAll(currentPage, 6); // 6 per page for good layout
+      const response = await employeesAPI.getAll(currentPage, 6, searchQuery);
       setEmployees(response.data.employees);
       setTotalPages(response.data.totalPages);
     } catch (error) {
@@ -50,14 +60,9 @@ const Employees: React.FC = () => {
 
   useEffect(() => {
     fetchEmployees();
-  }, [currentPage]);
+  }, [currentPage, searchQuery]);
 
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.department?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredEmployees = employees;
 
   const handleEdit = (employee: Employee) => {
     toast.info(`Edit form for ${employee.name} should go here`);
@@ -147,7 +152,7 @@ const Employees: React.FC = () => {
             type="text"
             placeholder="Search employees by name, email, or department..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="input w-full pl-10"
           />
         </div>
@@ -182,7 +187,7 @@ const Employees: React.FC = () => {
       {filteredEmployees.length > 0 ? (
         <>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredEmployees.map((employee, index) => (
+            {filteredEmployees.map((employee: Employee, index: number) => (
               <motion.div
                 key={employee.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -231,12 +236,12 @@ const Employees: React.FC = () => {
                 >
                   Previous
                 </button>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 overflow-x-auto max-w-[300px] px-1 pb-2 scrollbar-hide">
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i + 1}
                       onClick={() => setCurrentPage(i + 1)}
-                      className={`h-10 w-10 rounded-lg text-sm font-medium transition-colors ${currentPage === i + 1
+                      className={`h-10 w-10 flex-shrink-0 rounded-lg text-sm font-medium transition-colors ${currentPage === i + 1
                         ? "bg-primary-600 text-white"
                         : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                         }`}
@@ -281,57 +286,14 @@ const Employees: React.FC = () => {
         - z-50: z-index très élevé pour être au-dessus de tout
         - bg-black bg-opacity-50: fond noir semi-transparent (overlay)
       */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
-          >
-            {/* 
-              Contenu de la modale avec animation d'entrée
-              - max-w-md: largeur maximale de 28rem (448px)
-              - rounded-xl: coins très arrondis
-              - shadow-xl: ombre importante
-            */}
-            {/* Titre de la modale */}
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">
-              Add New Employee
-            </h2>
-            {/* 
-              Message d'information
-              TODO: Implémenter un formulaire complet d'ajout d'employé
-            */}
-            <p className="mb-4 text-sm text-gray-600">
-              This is a placeholder modal. Connect to backend API to add
-              employees.
-            </p>
-            {/* Boutons d'action */}
-            <div className="flex justify-end space-x-2">
-              {/* Bouton d'annulation */}
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="btn btn-outline"
-              >
-                Cancel
-              </button>
-              {/* 
-                Bouton d'ajout (simulation)
-                TODO: Implémenter l'appel API POST /api/employees
-              */}
-              <button
-                onClick={() => {
-                  toast.success("Employee added! (Demo)");
-                  setShowAddModal(false);
-                }}
-                className="btn btn-primary"
-              >
-                Add Employee
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      {/* 
+        Modale d'ajout d'employé réelle
+      */}
+      <AddEmployeeModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={fetchEmployees}
+      />
     </div>
   );
 };

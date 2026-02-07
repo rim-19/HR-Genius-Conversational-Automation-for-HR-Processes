@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -64,8 +64,8 @@ export const assistantAPI = {
 
 // Employees API
 export const employeesAPI = {
-  getAll: (page: number = 1, limit: number = 10) =>
-    api.get(`/employees?page=${page}&limit=${limit}`),
+  getAll: (page: number = 1, limit: number = 10, search?: string) =>
+    api.get(`/employees?page=${page}&limit=${limit}${search ? `&search=${search}` : ''}`),
 
   getById: (id: string) =>
     api.get(`/employees/${id}`),

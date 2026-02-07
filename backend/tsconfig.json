@@ -2,16 +2,27 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "express"],
-    "typeRoots": ["./src/types", "./node_modules/@types", "./node_modules/@prisma/client"]
-
+    "types": [
+      "node",
+      "express"
+    ],
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types",
+      "./node_modules/@prisma/client"
+    ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src",
+    "prisma"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

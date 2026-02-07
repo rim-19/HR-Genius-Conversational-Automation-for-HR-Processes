@@ -13,12 +13,12 @@ async function main() {
   const passwordPlain = 'Password123!';
   const hashed = await bcrypt.hash(passwordPlain, 10);
 
- const systemUsers = [
-  { name: 'Admin User', email: 'elrhezzalrim@gmail.com', role: Role.ADMIN },
-  { name: 'HR User', email: 'youssrazahafy@gmail.com', role: Role.HR },
-  { name: 'Manager User', email: 'prettiestrim.web@gmail.com', role: Role.MANAGER },
-  { name: 'Employee User', email: 'youssrarimyassmine@gmail.com', role: Role.EMPLOYEE },
-];
+  const systemUsers = [
+    { name: 'Admin User', email: 'elrhezzalrim@gmail.com', role: Role.ADMIN },
+    { name: 'HR User', email: 'youssrazahafy@gmail.com', role: Role.HR },
+    { name: 'Manager User', email: 'prettiestrim.web@gmail.com', role: Role.MANAGER },
+    { name: 'Employee User', email: 'youssrarimyassmine@gmail.com', role: Role.EMPLOYEE },
+  ];
 
 
   for (const u of systemUsers) {
@@ -40,36 +40,36 @@ async function main() {
 
   // Get real relations
   const hr = await prisma.user.findUnique({
-  where: { email: "youssrazahafy@gmail.com" },
-});
+    where: { email: "youssrazahafy@gmail.com" },
+  });
 
-const manager = await prisma.user.findUnique({
-  where: { email: "prettiestrim.web@gmail.com" },
-});
+  const manager = await prisma.user.findUnique({
+    where: { email: "prettiestrim.web@gmail.com" },
+  });
 
   // -----------------------------------------
   // CREATE 80 FAKE EMPLOYEES
   // -----------------------------------------
 
   const firstNames = [
-    'Rim','Yassine','Amina','Hichem','Nabil','Imene','Sara','Walid','Mourad','Rania',
-    'Zineb','Lina','Sami','Othman','Nour','Salma','Farah','Nadia','Hajar','Ayoub',
-    'Karim','Soufiane','Anas','Younes','Kenza','Manal','Houda','Ayman','Leila','Meriem',
-    'Amine','Brahim','Samira','Nourdin','Bilel','Rachid','Dounia','Yasmine','Nadir','Taha'
+    'Rim', 'Yassine', 'Amina', 'Hichem', 'Nabil', 'Imene', 'Sara', 'Walid', 'Mourad', 'Rania',
+    'Zineb', 'Lina', 'Sami', 'Othman', 'Nour', 'Salma', 'Farah', 'Nadia', 'Hajar', 'Ayoub',
+    'Karim', 'Soufiane', 'Anas', 'Younes', 'Kenza', 'Manal', 'Houda', 'Ayman', 'Leila', 'Meriem',
+    'Amine', 'Brahim', 'Samira', 'Nourdin', 'Bilel', 'Rachid', 'Dounia', 'Yasmine', 'Nadir', 'Taha'
   ];
 
   const lastNames = [
-    'Bouzid','Cherif','BenAli','Haddad','Mansouri','Amrani','Berrada','Zohraoui','Khalfallah','Gacem',
-    'Fassi','ElAmrani','Touil','Sahli','Merabet','Chakiri','Saidi','Benkirane','Fadili','Chouaib'
+    'Bouzid', 'Cherif', 'BenAli', 'Haddad', 'Mansouri', 'Amrani', 'Berrada', 'Zohraoui', 'Khalfallah', 'Gacem',
+    'Fassi', 'ElAmrani', 'Touil', 'Sahli', 'Merabet', 'Chakiri', 'Saidi', 'Benkirane', 'Fadili', 'Chouaib'
   ];
 
   const positions = [
-    'Développeur Full-Stack','Designer UI/UX','Comptable','Responsable RH','Commercial',
-    'Ingénieur Réseau','Chef de Projet','Data Analyst','Support Technique','Consultant'
+    'Développeur Full-Stack', 'Designer UI/UX', 'Comptable', 'Responsable RH', 'Commercial',
+    'Ingénieur Réseau', 'Chef de Projet', 'Data Analyst', 'Support Technique', 'Consultant'
   ];
 
   const departments = [
-    'Informatique','Ressources Humaines','Finance','Commercial','Marketing'
+    'Informatique', 'Ressources Humaines', 'Finance', 'Commercial', 'Marketing'
   ];
 
   function randomDate(startYear: number, endYear: number) {
@@ -91,12 +91,14 @@ const manager = await prisma.user.findUnique({
     const department = departments[Math.floor(Math.random() * departments.length)];
 
     const salary = Math.floor(9000 + Math.random() * (20000 - 9000)); // 9k–20k
+    const phone = `+1 (555) ${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`;
     const joinDate = randomDate(2018, 2025);
 
     await prisma.employee.create({
       data: {
         name: fullName,
         email,
+        phone,
         position,
         department,
         salary,
@@ -122,4 +124,4 @@ main()
 
 
 
-  
+

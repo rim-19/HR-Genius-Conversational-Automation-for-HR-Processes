@@ -89,9 +89,9 @@ const AdminDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change} today
                 </div>
@@ -109,7 +109,7 @@ const AdminDashboard: React.FC = () => {
           <DashboardCharts />
           <div className="grid gap-6 sm:grid-cols-2">
             <motion.div className="card glass" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">System Controls</h3>
+              <h3 className="text-lg font-semibold mb-4">System Controls</h3>
               <div className="space-y-2">
                 <button onClick={() => navigate('/settings')} className="btn btn-outline w-full justify-start space-x-2">
                   <FiSettings /> <span>Global Configuration</span>
@@ -120,7 +120,7 @@ const AdminDashboard: React.FC = () => {
               </div>
             </motion.div>
             <motion.div className="card glass" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-              <h3 className="text-lg font-semibold mb-4 dark:text-white">AI Capabilities</h3>
+              <h3 className="text-lg font-semibold mb-4">AI Capabilities</h3>
               <div className="space-y-2">
                 <button onClick={() => navigate('/assistant')} className="btn btn-primary w-full justify-start space-x-2">
                   <HiSparkles /> <span>Launch AI Workspace</span>
@@ -219,9 +219,9 @@ const HRDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>
@@ -241,11 +241,11 @@ const HRDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <DashboardCharts />
           <div className="card glass">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Quick Actions</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <button
                 onClick={() => navigate('/documents')}
-                className="flex items-center space-x-3 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-left transition-all hover:bg-secondary-50 hover:border-secondary-200 dark:hover:bg-secondary-900/10"
+                className="flex items-center space-x-3 rounded-xl border border-gray-200 p-4 text-left transition-all hover:bg-secondary-50 hover:border-secondary-200"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary-500 text-white shadow-md">
                   <FiFileText className="h-5 w-5" />
@@ -258,7 +258,7 @@ const HRDashboard: React.FC = () => {
 
               <button
                 onClick={() => navigate('/employees')}
-                className="flex items-center space-x-3 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-left transition-all hover:bg-green-50 hover:border-green-200 dark:hover:bg-green-900/10"
+                className="flex items-center space-x-3 rounded-xl border border-gray-200 p-4 text-left transition-all hover:bg-green-50 hover:border-green-200"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500 text-white shadow-md">
                   <FiUsers className="h-5 w-5" />
@@ -357,9 +357,9 @@ const ManagerDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>
@@ -376,14 +376,14 @@ const ManagerDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="card glass">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Active Requests</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Active Requests</h2>
               <span className="text-xs bg-primary-100 text-primary-700 font-bold px-2 py-1 rounded">2 NEW</span>
             </div>
             <div className="space-y-3">
               {pendingApprovals.map((approval) => (
                 <div
                   key={approval.id}
-                  className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-gray-800 p-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  className="flex items-center justify-between rounded-xl border border-gray-100 p-4 transition-all hover:bg-gray-50"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-secondary-50 dark:bg-secondary-900/20 rounded-xl">
@@ -506,9 +506,9 @@ const EmployeeDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>

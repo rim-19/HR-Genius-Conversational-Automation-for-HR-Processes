@@ -16,11 +16,11 @@ export const HRIntentSchema = z.object({
     "leave",
     "employment",
     "custom",
-  ]).optional(),
+  ]).nullable().optional(),
 
-  employeeName: z.string().optional(),
+  employeeName: z.string().nullable().optional(),
 
-  extraData: z.record(z.string(), z.any()).optional(),
+  extraData: z.record(z.string(), z.any()).nullable().optional(),
 
-  filters: z.record(z.string(), z.any()).optional(),
+  filters: z.record(z.string(), z.any()).nullable().optional(),
 });

@@ -25,7 +25,12 @@ import { UserRole } from '../utils/roles';
  * 
  * Les éléments du menu sont filtrés selon les permissions de l'utilisateur connecté.
  */
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  className?: string;
+  onClose?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
   // État pour contrôler si la sidebar est réduite ou non
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -107,7 +112,7 @@ const Sidebar: React.FC = () => {
     */
     <motion.aside
       animate={{ width: isCollapsed ? 80 : 256 }}
-      className="relative flex flex-col border-r border-gray-200 bg-white dark:bg-slate-900 dark:border-slate-800 shadow-sm"
+      className={`relative flex flex-col border-r border-gray-200 bg-white shadow-sm ${className || 'hidden md:flex'}`}
     >
       {/* 
         En-tête avec logo et nom de l'application
@@ -170,6 +175,7 @@ const Sidebar: React.FC = () => {
             */}
             <NavLink
               to={item.path}
+              onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
                   ? 'bg-primary-50 text-primary-700 shadow-sm' // Style pour la page active

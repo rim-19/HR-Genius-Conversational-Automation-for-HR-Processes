@@ -1,189 +1,40 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import ChatbotUI from '../components/ChatbotUI';
-import { FiTrash2 } from 'react-icons/fi';
-import { toast } from 'react-toastify';
-import { assistantAPI } from '../services/api';
-
-/**
- * Interface définissant la structure d'un message dans le chat
- */
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
+import React, { useEffect, useRef } from "react";
+import { useChat } from "../context/ChatContext";
+import ChatbotUI from "../components/ChatbotUI";
+import { motion } from "framer-motion";
 
 const Assistant: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hello! I'm your HR-Genius AI Assistant. How can I help you today? I can assist with:\n\n• Generating employee certificates\n• Updating salary information\n• Managing employee records\n• And much more!",
-      sender: 'ai',
-      timestamp: new Date(),
-    },
-  ]);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSendMessage = async (text: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-
-    setIsLoading(true);
-
-    try {
-      const response = await assistantAPI.sendMessage(text);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response.data.message,
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error: any) {
-      console.error('Error sending message:', error);
-      toast.error(error.response?.data?.message || 'Error communicating with AI');
-
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting to my brain right now. Please try again later.",
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Fonction pour effacer l'historique du chat
-   * 
-   * Réinitialise la liste des messages avec seulement le message de bienvenue initial.
-   * Affiche une notification toast pour informer l'utilisateur.
-   */
-  const handleClearChat = () => {
-    setMessages([
-      {
-        id: '1',
-        text: 'Hello! I\'m your HR-Genius AI Assistant. How can I help you today?',
-        sender: 'ai',
-        timestamp: new Date(),
-      },
-    ]);
-    // Affichage d'une notification toast pour confirmer l'action
-    toast.info('Chat history cleared');
-  };
+  const { messages, isLoading, sendMessage } = useChat();
 
   return (
-
     <div className="flex h-[calc(100vh-8rem)] flex-col">
-      {/* 
-        En-tête de la page avec titre et bouton d'effacement
-        - Animation d'entrée depuis le haut avec Framer Motion
-        - mb-4: marge inférieure de 16px
-      */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-4 flex items-center justify-between"
       >
-        {/* Titre et description */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">AI Assistant</h1>
           <p className="text-sm text-gray-600">
             Ask me anything about HR processes and I'll help you out!
           </p>
         </div>
-        {/* 
-          Bouton pour effacer l'historique du chat
-          - btn btn-outline: style de bouton avec bordure
-          - Appelle handleClearChat au clic
-        */}
-        <button
-          onClick={handleClearChat}
-          className="btn btn-outline flex items-center space-x-2"
-        >
-          <FiTrash2 className="h-4 w-4" />
-          <span>Clear Chat</span>
-        </button>
       </motion.div>
 
-      {/* 
-        Container du chat avec fond dégradé animé
-        - relative: pour positionner les éléments de fond absolument
-        - flex-1: prend tout l'espace vertical disponible
-        - overflow-hidden: cache le contenu qui dépasse
-        - rounded-xl: coins très arrondis
-        - bg-gradient-to-br: dégradé diagonal
-        - shadow-lg: ombre importante
-      */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="relative flex-1 overflow-hidden rounded-xl bg-gradient-to-br from-primary-50 via-white to-secondary-50 shadow-lg"
+        className="relative flex-1 overflow-hidden rounded-xl bg-white shadow-lg border border-gray-200"
       >
-        {/* 
-          Éléments de fond animés pour un effet visuel moderne
-          - absolute inset-0: prend toute la place du parent
-          - overflow-hidden: cache les parties qui dépassent
-        */}
-        <div className="absolute inset-0 overflow-hidden">
-          {/* 
-            Première forme animée - Cercle en haut à gauche
-            - Animation de pulsation et mouvement
-            - blur-3xl: effet de flou important
-          */}
-          <motion.div
-            className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-primary-200 opacity-20 blur-3xl"
-            animate={{
-              scale: [1, 1.2, 1], // Pulsation
-              x: [0, 20, 0], // Mouvement horizontal
-              y: [0, 20, 0], // Mouvement vertical
-            }}
-            transition={{
-              duration: 8, // Durée de l'animation: 8 secondes
-              repeat: Infinity, // Répète à l'infini
-              ease: 'easeInOut', // Easing fluide
-            }}
-          />
-          {/* 
-            Deuxième forme animée - Cercle en bas à droite
-            - Animation similaire mais avec des paramètres différents
-            - Crée une variation visuelle
-          */}
-          <motion.div
-            className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-secondary-200 opacity-20 blur-3xl"
-            animate={{
-              scale: [1, 1.3, 1], // Pulsation plus importante
-              x: [0, -20, 0], // Mouvement inverse
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 10, // Durée différente pour éviter la synchronisation
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
+        <div className="absolute inset-0 overflow-hidden bg-gray-50/50">
+          {/* Background decoration if needed */}
         </div>
 
-        {/* 
-          Interface de chat (composant ChatbotUI)
-          - relative z-10: au-dessus des éléments de fond animés
-          - h-full: prend toute la hauteur du parent
-        */}
         <div className="relative z-10 h-full">
           <ChatbotUI
             messages={messages}
-            onSendMessage={handleSendMessage}
+            onSendMessage={sendMessage}
             isLoading={isLoading}
           />
         </div>

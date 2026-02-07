@@ -20,6 +20,15 @@ export const getEmployees = async (req: Request, res: Response) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    if (req.query.search) {
+      const search = req.query.search as string;
+      whereClause.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { department: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
     const [employees, total] = await Promise.all([
       prisma.employee.findMany({
         where: whereClause,

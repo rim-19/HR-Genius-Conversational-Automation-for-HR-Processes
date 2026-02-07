@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   FiUsers,
@@ -6,236 +6,396 @@ import {
   FiShield,
   FiDatabase,
   FiActivity,
+  FiCheckCircle,
+  FiAlertTriangle,
+  FiSave,
+  FiRefreshCw,
+  FiTrash2,
+  FiLock
 } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { UserRole } from "../utils/roles";
 
-/**
- * Composant Settings - Page de paramètres système
- *
- * Ce composant permet aux administrateurs de gérer les paramètres système.
- * Cette page est protégée au niveau du routeur (router.tsx) pour n'autoriser
- * que les utilisateurs avec le rôle ADMIN.
- *
- * Fonctionnalités:
- * - Gestion des utilisateurs, rôles et permissions
- * - Configuration système
- * - Paramètres de sécurité et contrôle d'accès
- * - Gestion de la base de données et sauvegardes
- * - Surveillance système et métriques
- *
- * TODO: Connecter les catégories de paramètres aux routes backend:
- * - /api/system/settings
- * - /api/users
- * - /api/system/config
- * - /api/security/settings
- * - /api/system/backup
- * - /api/system/monitoring
- *
- * VISIBLE_TO: ['ADMIN']
- */
-const Settings: React.FC = () => {
-  // Récupération des informations de l'utilisateur connecté
-  const { user } = useAuth();
+// --- Types ---
+type TabId = 'users' | 'system' | 'security' | 'database' | 'monitoring';
 
-  //
-  // Note: Cette page est déjà protégée par le routeur (RoleProtectedRoute)
-  // Les vérifications ici servent uniquement pour des éléments UI conditionnels
-  // RENDER_IF: user.role === 'ADMIN'
-  //
+// --- Components ---
 
-  /**
-   * Catégories de paramètres système disponibles
-   * Chaque catégorie représente une section de configuration différente:
-   * - id: Identifiant unique de la catégorie
-   * - name: Nom affiché de la catégorie
-   * - description: Description de ce qui peut être configuré dans cette catégorie
-   * - icon: Composant d'icône React Icons
-   * - color: Classe CSS pour la couleur de fond de l'icône
-   *
-   * TODO: Implémenter la navigation vers les pages de configuration détaillées
-   */
-  const settingsCategories = [
-    {
-      id: 1,
-      name: "User Management",
-      description: "Manage users, roles, and permissions",
-      icon: FiUsers,
-      color: "bg-blue-500",
-      // TODO: Link to /api/users management
-    },
-    {
-      id: 2,
-      name: "System Configuration",
-      description: "Configure system preferences and settings",
-      icon: FiSettings,
-      color: "bg-purple-500",
-      // TODO: Link to /api/system/config
-    },
-    {
-      id: 3,
-      name: "Security & Access",
-      description: "Manage security policies and access controls",
-      icon: FiShield,
-      color: "bg-red-500",
-      // TODO: Link to /api/security/settings
-    },
-    {
-      id: 4,
-      name: "Database & Backup",
-      description: "Database management and backup settings",
-      icon: FiDatabase,
-      color: "bg-green-500",
-      // TODO: Link to /api/system/backup
-    },
-    {
-      id: 5,
-      name: "System Monitoring",
-      description: "View system logs and performance metrics",
-      icon: FiActivity,
-      color: "bg-orange-500",
-      // TODO: Link to /api/system/monitoring
-    },
+// 1. User Management Section
+const UserManagement: React.FC = () => {
+  // Mock Data - Matching Seed Data
+  const users = [
+    { id: 1, name: "Admin User", email: "elrhezzalrim@gmail.com", role: "ADMIN", status: "Active" },
+    { id: 2, name: "HR User", email: "youssrazahafy@gmail.com", role: "HR", status: "Active" },
+    { id: 3, name: "Manager User", email: "prettiestrim.web@gmail.com", role: "MANAGER", status: "Active" },
   ];
 
   return (
     <div className="space-y-6">
-      {/* 
-        Container principal de la page Settings
-        - space-y-6: espacement vertical de 24px entre les sections
-      */}
-      {/* 
-        En-tête de la page avec dégradé de couleur
-        - Animation d'entrée depuis le haut avec Framer Motion
-        - Dégradé de violet à primaire pour indiquer une zone administrative
-        - shadow-lg: ombre importante pour la profondeur
-      */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl bg-gradient-to-r from-purple-500 to-primary-500 p-8 text-white shadow-lg"
-      >
-        <h1 className="text-3xl font-bold">System Settings</h1>
-        <p className="mt-2 text-purple-100">
-          Admin-only configuration area. Manage system-wide settings and
-          preferences.
-        </p>
-      </motion.div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
+          <p className="text-sm text-gray-500">Manage system access and roles</p>
+        </div>
+        <button className="btn btn-primary">Add New User</button>
+      </div>
 
-      {/* 
-        Grille des catégories de paramètres
-        - grid: layout en grille responsive
-        - gap-6: espacement de 24px entre les cartes
-        - sm:grid-cols-2: 2 colonnes sur petits écrans et plus
-        - lg:grid-cols-3: 3 colonnes sur grands écrans et plus
-      */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {/* 
-          Parcours de toutes les catégories de paramètres
-          Chaque catégorie est affichée dans une carte cliquable
-          - Animation avec délai progressif pour un effet en cascade
-        */}
-        {settingsCategories.map((category, index) => (
-          <motion.div
-            key={category.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="card group cursor-pointer hover:shadow-lg transition-all"
-          >
-            {/* 
-              Carte de catégorie avec animation d'entrée
-              - key={category.id}: identifiant unique pour React
-              - initial: état initial (invisible, légèrement en bas)
-              - animate: état animé (visible, position normale)
-              - transition: délai progressif (0.1s * index) pour l'effet en cascade
-              - card: classe personnalisée pour le style de carte
-              - group: permet les effets hover sur les enfants
-              - cursor-pointer: curseur en forme de pointeur
-              - hover:shadow-lg: ombre plus importante au survol
-            */}
-            <div className="flex items-start space-x-4">
-              {/* 
-                Icône de la catégorie avec effet hover
-                - rounded-xl: coins très arrondis
-                - p-3: padding de 12px
-                - transition-transform: transition fluide de la transformation
-                - group-hover:scale-110: agrandit l'icône au survol de la carte
-              */}
-              <div
-                className={`rounded-xl ${category.color} p-3 text-white transition-transform group-hover:scale-110`}
-              >
-                <category.icon className="h-6 w-6" />
-              </div>
-              {/* Contenu textuel de la catégorie */}
-              <div className="flex-1">
-                {/* Nom de la catégorie */}
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {category.name}
-                </h3>
-                {/* Description de la catégorie */}
-                <p className="mt-1 text-sm text-gray-600">
-                  {category.description}
-                </p>
-                {/* 
-                  Bouton de configuration (à implémenter)
-                  - mt-3: marge supérieure de 12px
-                  - text-primary-600: couleur primaire
-                  - hover:text-primary-700: couleur plus foncée au survol
-                  - TODO: Naviguer vers la page de configuration détaillée
-                */}
-                <button className="mt-3 text-sm font-medium text-primary-600 hover:text-primary-700">
-                  Configure →
-                </button>
-              </div>
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                      {user.name.charAt(0)}
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' :
+                    user.role === 'HR' ? 'bg-pink-100 text-pink-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                    {user.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button className="text-primary-600 hover:text-primary-900 mr-3">Edit</button>
+                  <button className="text-red-600 hover:text-red-900">Deactivate</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+// 2. System Configuration
+const SystemConfiguration: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">System Configuration</h2>
+        <p className="text-sm text-gray-500">Global application settings</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-4">
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">Company Name</span>
+            <input type="text" className="input w-full mt-1" defaultValue="HR Genius Corp" />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">Support Email</span>
+            <input type="email" className="input w-full mt-1" defaultValue="support@hr-genius.com" />
+          </label>
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">Timezone</span>
+            <select className="input w-full mt-1">
+              <option>UTC</option>
+              <option>EST</option>
+              <option>PST</option>
+            </select>
+          </label>
+        </div>
+        <div className="space-y-4">
+          <label className="block">
+            <span className="text-sm font-medium text-gray-700">Notification Preferences</span>
+            <div className="mt-2 space-y-2">
+              <label className="flex items-center space-x-2">
+                <input type="checkbox" className="rounded text-primary-600" defaultChecked />
+                <span className="text-sm text-gray-600">Email Alerts</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="checkbox" className="rounded text-primary-600" defaultChecked />
+                <span className="text-sm text-gray-600">System Notifications</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input type="checkbox" className="rounded text-primary-600" />
+                <span className="text-sm text-gray-600">SMS Alerts (Enterprise)</span>
+              </label>
             </div>
-          </motion.div>
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-end pt-4">
+        <button className="btn btn-primary flex items-center space-x-2">
+          <FiSave />
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 3. Security & Access
+const SecurityAccess: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">Security & Access</h2>
+        <p className="text-sm text-gray-500">Manage security policies and protocols</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="card border-l-4 border-green-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Authentication</p>
+              <h3 className="text-lg font-bold text-gray-900">JWT Strategy</h3>
+            </div>
+            <FiCheckCircle className="text-green-500 h-6 w-6" />
+          </div>
+          <p className="mt-2 text-xs text-gray-500">Active secure token-based auth</p>
+        </div>
+        <div className="card border-l-4 border-yellow-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Password Policy</p>
+              <h3 className="text-lg font-bold text-gray-900">Standard</h3>
+            </div>
+            <FiAlertTriangle className="text-yellow-500 h-6 w-6" />
+          </div>
+          <p className="mt-2 text-xs text-gray-500">Min 8 chars. Consider upgrading to 'Strong'.</p>
+        </div>
+        <div className="card border-l-4 border-red-500">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-500">MFA Status</p>
+              <h3 className="text-lg font-bold text-gray-900">Disabled</h3>
+            </div>
+            <FiLock className="text-red-500 h-6 w-6" />
+          </div>
+          <button className="mt-2 text-xs text-primary-600 font-semibold hover:underline">Enable MFA</button>
+        </div>
+      </div>
+
+      <div className="card bg-gray-50">
+        <h3 className="font-semibold text-gray-900 mb-2">Access Control List (ACL)</h3>
+        <p className="text-sm text-gray-600 mb-4">Current role-based access configuration.</p>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 border-b">
+                <th className="pb-2">Role</th>
+                <th className="pb-2">Dashboard</th>
+                <th className="pb-2">Employees</th>
+                <th className="pb-2">Settings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="py-2 font-medium">ADMIN</td>
+                <td className="text-green-600">Full Access</td>
+                <td className="text-green-600">Full Access</td>
+                <td className="text-green-600">Full Access</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-2 font-medium">HR</td>
+                <td className="text-green-600">Full Access</td>
+                <td className="text-green-600">Full Access</td>
+                <td className="text-red-600">Denied</td>
+              </tr>
+              <tr>
+                <td className="py-2 font-medium">EMPLOYEE</td>
+                <td className="text-blue-600">View Only</td>
+                <td className="text-red-600">Denied</td>
+                <td className="text-red-600">Denied</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 4. Database & Backup
+const DatabaseBackup: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">Database & Backup</h2>
+        <p className="text-sm text-gray-500">Infrastructure operational controls</p>
+      </div>
+
+      <div className="card bg-blue-50 border border-blue-100">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-500 rounded-lg text-white">
+            <FiDatabase className="h-6 w-6" />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900">PostgreSQL Database</h3>
+            <p className="text-sm text-gray-600">Connection Status: <span className="text-green-600 font-semibold">Healthy</span></p>
+          </div>
+          <div className="flex-1 text-right">
+            <p className="text-xs text-gray-500">Uptime: 14d 2h 12m</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="card">
+          <h3 className="font-semibold text-gray-900 mb-2">Backup Schedule</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Frequency</span>
+              <span className="font-medium">Daily (02:00 UTC)</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Retention</span>
+              <span className="font-medium">30 Days</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Last Successful</span>
+              <span className="font-medium text-green-600">Today, 02:00 AM</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-gray-900 mb-2">Actions</h3>
+          <div className="space-y-3">
+            <button className="btn btn-outline w-full justify-center space-x-2">
+              <FiSave />
+              <span>Trigger Manual Backup</span>
+            </button>
+            <button className="btn btn-outline w-full justify-center space-x-2 text-red-600 hover:bg-red-50 hover:border-red-200">
+              <FiTrash2 />
+              <span>Prune Old Logs</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 5. System Monitoring
+const SystemMonitoring: React.FC = () => {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900">System Monitoring</h2>
+        <p className="text-sm text-gray-500">Real-time performance metrics</p>
+      </div>
+
+      <div className="grid gap-6 grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: 'Uptime', value: '99.9%', color: 'text-green-600' },
+          { label: 'Latency', value: '45ms', color: 'text-blue-600' },
+          { label: 'Error Rate', value: '0.01%', color: 'text-green-600' },
+          { label: 'Active Users', value: '12', color: 'text-purple-600' },
+        ].map((stat) => (
+          <div key={stat.label} className="card text-center py-4">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">{stat.label}</p>
+            <p className={`text-2xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
+          </div>
         ))}
       </div>
 
-      {/* 
-        Carte d'information sur l'accès administrateur
-        - Animation avec délai pour apparaître après les catégories
-        - border-2 border-dashed: bordure pointillée pour attirer l'attention
-        - bg-purple-50: fond violet clair pour distinguer cette carte
-        - Avertit sur l'importance des paramètres système
-      */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="card border-2 border-dashed border-purple-300 bg-purple-50"
-      >
-        <div className="flex items-start space-x-4">
-          {/* Icône de bouclier pour représenter la sécurité */}
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white">
-            <FiShield className="h-6 w-6" />
-          </div>
-          <div>
-            {/* Titre de la carte d'information */}
-            <h3 className="font-semibold text-gray-900">
-              Admin Access Required
-            </h3>
-            {/* 
-              Message d'avertissement sur les implications des changements
-              Les paramètres système affectent tous les utilisateurs
-            */}
-            <p className="mt-1 text-sm text-gray-600">
-              These settings are only accessible to system administrators.
-              Changes made here affect all users and system behavior. Please
-              ensure you understand the implications before making changes.
-            </p>
-            {/* 
-              Liste des endpoints API backend pour référence
-              - text-xs: texte très petit
-              - text-gray-500: couleur grise pour moins d'emphase
-            */}
-            <p className="mt-2 text-xs text-gray-500">
-              Backend API endpoints: /api/system/settings, /api/users,
-              /api/system/config
-            </p>
-          </div>
+      <div className="card bg-gray-900 text-gray-100 font-mono text-sm h-64 overflow-y-auto custom-scrollbar">
+        <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-700 sticky top-0 bg-gray-900">
+          <span className="font-semibold text-gray-400">System Logs</span>
+          <button className="text-xs text-primary-400 hover:text-primary-300">Export</button>
         </div>
+        <div className="space-y-1">
+          <p><span className="text-gray-500">[10:00:23]</span> <span className="text-green-400">INFO</span> User login successful (ID: 4)</p>
+          <p><span className="text-gray-500">[10:01:05]</span> <span className="text-blue-400">DEBUG</span> Compressing backup archive...</p>
+          <p><span className="text-gray-500">[10:01:06]</span> <span className="text-green-400">INFO</span> Backup completed (size: 45MB)</p>
+          <p><span className="text-gray-500">[10:05:12]</span> <span className="text-yellow-400">WARN</span> High memory usage detected (78%)</p>
+          <p><span className="text-gray-500">[10:12:45]</span> <span className="text-green-400">INFO</span> Scheduled task 'GenerateReports' completed</p>
+          <p><span className="text-gray-500">[10:15:00]</span> <span className="text-green-400">INFO</span> API Health check: OK</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// --- Main Component ---
+
+const Settings: React.FC = () => {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabId>('users');
+
+  const navItems = [
+    { id: 'users', label: 'User Management', icon: FiUsers },
+    { id: 'system', label: 'System Configuration', icon: FiSettings },
+    { id: 'security', label: 'Security & Access', icon: FiShield },
+    { id: 'database', label: 'Database & Backup', icon: FiDatabase },
+    { id: 'monitoring', label: 'System Monitoring', icon: FiActivity },
+  ];
+
+  return (
+    <div className="flex h-[calc(100vh-6rem)] gap-6">
+      {/* Left Sidebar Navigation */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="w-64 flex-shrink-0 card p-0 overflow-hidden h-fit"
+      >
+        <div className="p-4 bg-gray-50 border-b border-gray-100">
+          <h2 className="font-bold text-gray-800">Settings</h2>
+          <p className="text-xs text-gray-500">v2.4.0 (Build 2024)</p>
+        </div>
+        <nav className="p-2 space-y-1">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as TabId)}
+              className={`nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === item.id
+                ? 'bg-primary-50 text-primary-700'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+            >
+              <item.icon className={`h-5 w-5 ${activeTab === item.id ? 'text-primary-600' : 'text-gray-400'}`} />
+              <span>{item.label}</span>
+              {activeTab === item.id && (
+                <motion.div
+                  layoutId="activeTabIndicator"
+                  className="absolute right-0 w-1 h-8 bg-primary-600 rounded-l-md"
+                />
+              )}
+            </button>
+          ))}
+        </nav>
+      </motion.div>
+
+      {/* Right Content Area */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        key={activeTab} // Forces re-render animation on tab switch
+        className="flex-1 overflow-y-auto"
+      >
+        {activeTab === 'users' && <UserManagement />}
+        {activeTab === 'system' && <SystemConfiguration />}
+        {activeTab === 'security' && <SecurityAccess />}
+        {activeTab === 'database' && <DatabaseBackup />}
+        {activeTab === 'monitoring' && <SystemMonitoring />}
       </motion.div>
     </div>
   );

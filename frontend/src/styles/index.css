@@ -13,18 +13,12 @@
     --color-muted: 107 114 128;
   }
 
-  .dark {
-    --color-background: 17 24 39;
-    --color-text: 243 244 246;
-    --color-muted: 156 163 175;
-  }
-
   html {
     @apply scroll-smooth;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    @apply bg-gray-50 text-gray-900;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -78,19 +72,19 @@
   }
 
   .btn-outline {
-    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
+    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl transition-all duration-300 dark:bg-slate-900/60 dark:border-white/10 dark:shadow-2xl;
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl transition-all duration-300;
   }
 
   .card {
-    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800;
+    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-gray-100;
   }
 
   .input {
-    @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm transition-all focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:border-gray-600;
+    @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm transition-all focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
     padding: 0.625rem 0.875rem;
   }
 
@@ -107,7 +101,7 @@
   }
 
   .chat-bubble-ai {
-    @apply mr-auto rounded-bl-none text-gray-900 bg-[#f0f7ff] border border-blue-50/50 dark:bg-slate-800 dark:text-gray-100 dark:border-slate-700;
+    @apply mr-auto rounded-bl-none text-gray-900 bg-[#f0f7ff] border border-blue-50/50;
   }
 }
 
@@ -136,6 +130,7 @@
 }
 
 @keyframes bounce {
+
   0%,
   80%,
   100% {
@@ -154,13 +149,13 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  @apply bg-gray-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-gray-400 dark:bg-gray-600;
+  @apply rounded-full bg-gray-400;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500 dark:bg-gray-500;
+  @apply bg-gray-500;
 }

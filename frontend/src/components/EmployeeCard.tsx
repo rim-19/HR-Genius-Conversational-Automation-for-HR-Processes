@@ -18,7 +18,7 @@ interface Employee {
   id: string;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   position: string;
   department: string;
   avatar?: string;
@@ -80,11 +80,10 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       */}
       <div className="absolute right-4 top-4">
         <span
-          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-            employee.status === "active"
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${employee.status === "active"
               ? "bg-green-100 text-green-800" // Style vert pour actif
               : "bg-gray-100 text-gray-800" // Style gris pour inactif
-          }`}
+            }`}
         >
           {/* Affiche le statut ou "active" par défaut */}
           {employee.status || "active"}

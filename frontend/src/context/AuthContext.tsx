@@ -33,9 +33,7 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -48,9 +46,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         const storedUser = localStorage.getItem("hr_genius_user");
 
         if (token && storedUser) {
-          // Set authorization header for all future requests
-          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
           try {
             const response = await api.get('/me');
             setUser(response.data);
@@ -73,15 +68,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await api.post('/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
 
       const { token, user: userData } = response.data;
 
       localStorage.setItem("hr_genius_token", token);
       localStorage.setItem("hr_genius_user", JSON.stringify(userData));
-
-      // Set Auth Header
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       setUser(userData);
       toast.success(`Welcome back, ${userData.name}!`);
@@ -100,7 +92,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setUser(null);
     localStorage.removeItem("hr_genius_user");
     localStorage.removeItem("hr_genius_token");
-    delete api.defaults.headers.common["Authorization"];
     toast.info("You have been logged out.");
     navigate("/login");
   };

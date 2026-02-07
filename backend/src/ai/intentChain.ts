@@ -48,19 +48,28 @@ const chain = new LLMChain({
 });
 
 export async function extractHRIntent(input: string) {
-  const result = await chain.call({ input });
+  const renderedPrompt = await prompt.format({ input });
+  const result = await llm.invoke(renderedPrompt);
+  const raw = result.content.toString().trim();
+  // Robust JSON extraction using regex
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
 
-  const raw = result.text.trim();
-
-  const start = raw.indexOf("{");
-  const end = raw.lastIndexOf("}");
-
-  if (start === -1 || end === -1) {
-    console.error("LLM OUTPUT:", raw);
-    throw new Error("LLM did not return JSON");
+  if (!jsonMatch) {
+    console.error("❌ LLM OUTPUT WITHOUT JSON:", raw);
+    // 🛡️ Safe fallback for simple greetings
+    const lower = input.toLowerCase();
+    if (lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) {
+      return {
+        intent: "general_inquiry" as const,
+        employeeName: null,
+        documentType: null,
+        extraData: {}
+      };
+    }
+    throw new Error("The AI assistant could not formulate a valid command. Please try again.");
   }
 
-  const jsonString = raw.slice(start, end + 1);
+  const jsonString = jsonMatch[0];
 
   let parsed;
   try {
@@ -70,17 +79,20 @@ export async function extractHRIntent(input: string) {
     throw new Error("Invalid JSON from LLM");
   }
 
-  // 🔒 Normalize numeric fields
+  // Fallback for missing or generic intent
+  if (!parsed.intent || parsed.intent === "unknown") {
+    parsed.intent = "general_inquiry";
+  }
+
+  // 🔒 Normalize numeric fields safely
   if (parsed.extraData) {
-    if (parsed.extraData.salary !== null) {
+    if (parsed.extraData.salary !== undefined && parsed.extraData.salary !== null) {
       parsed.extraData.salary = Number(parsed.extraData.salary);
     }
-
-    if (parsed.extraData.salaryIncrease !== null) {
+    if (parsed.extraData.salaryIncrease !== undefined && parsed.extraData.salaryIncrease !== null) {
       parsed.extraData.salaryIncrease = Number(parsed.extraData.salaryIncrease);
     }
   }
-
 
   return HRIntentSchema.parse(parsed);
 

@@ -1,11 +1,10 @@
 // backend/src/controllers/userController.ts
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/AppError';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
 
 export const register = async (req: Request, res: Response) => {

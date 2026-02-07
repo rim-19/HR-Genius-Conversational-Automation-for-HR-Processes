@@ -1,4 +1,6 @@
+import React, { useEffect } from 'react';
 import { AppRouter } from './router';
+import { ChatProvider } from './context/ChatContext';
 
 /**
  * Composant App - Composant racine de l'application
@@ -10,7 +12,17 @@ import { AppRouter } from './router';
  * dans AppRouter. Ce composant reste minimal pour une meilleure séparation des responsabilités.
  */
 function App() {
-  return <AppRouter />;
+  // Global cleanup to remove any ghost dark mode
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('hr_genius_theme');
+  }, []);
+
+  return (
+    <ChatProvider>
+      <AppRouter />
+    </ChatProvider>
+  );
 }
 
 export default App;

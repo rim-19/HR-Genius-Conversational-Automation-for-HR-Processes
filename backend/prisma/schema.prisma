@@ -39,7 +39,9 @@ model Employee {
   email        String     @unique
   position     String
   department   String?
+  phone        String?
   salary       Float?
+  status       String     @default("active")
   joinedAt     DateTime   @default(now())
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

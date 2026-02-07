@@ -122,28 +122,12 @@ const Documents: React.FC = () => {
           Bouton de génération - Visible uniquement pour ADMIN et HR
           - Ouvre la modale de génération de document
         */}
-        {canGenerateDocuments && (
-          <button
-            onClick={() => setShowGenerateModal(true)}
-            className="btn btn-primary flex items-center space-x-2"
-          >
-            <FiPlus className="h-5 w-5" />
-            <span>Generate Document</span>
-          </button>
-        )}
+
         {/* 
           Bouton de demande - Visible uniquement pour les employés
           - Ouvre la modale pour demander un document
         */}
-        {isEmployee && (
-          <button
-            onClick={() => setShowGenerateModal(true)}
-            className="btn btn-primary flex items-center space-x-2"
-          >
-            <FiPlus className="h-5 w-5" />
-            <span>Request Document</span>
-          </button>
-        )}
+
       </motion.div>
 
       {/* 
