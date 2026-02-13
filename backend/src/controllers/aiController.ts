@@ -26,13 +26,15 @@ export async function aiController(req: Request, res: Response) {
     // 2️⃣ Extract intent via LangChain
     const intent = await extractHRIntent(req.body.message);
 
-    // 3️⃣ Enrich intent using backend memory (ONLY if missing)
-    if (!intent.employeeName && memory.lastEmployee) {
-      intent.employeeName = memory.lastEmployee.name;
-    }
-
-    if (!intent.documentType && memory.lastDocumentType) {
-      intent.documentType = memory.lastDocumentType;
+    // 3️⃣ Enrich intent using backend memory (ONLY if not a general inquiry)
+    // This prevents simple greetings from being confused with previous HR tasks
+    if (intent.intent !== "general_inquiry") {
+      if (!intent.employeeName && memory.lastEmployee) {
+        intent.employeeName = memory.lastEmployee.name;
+      }
+      if (!intent.documentType && memory.lastDocumentType) {
+        intent.documentType = memory.lastDocumentType;
+      }
     }
 
     // 4️⃣ Build execution context
@@ -46,6 +48,8 @@ export async function aiController(req: Request, res: Response) {
       system: {
         today: new Date().toISOString().split("T")[0], // YYYY-MM-DD
       },
+      userMessage: req.body.message,
+      memory,
     };
 
     // 5️⃣ Plan actions
@@ -62,10 +66,10 @@ export async function aiController(req: Request, res: Response) {
     await saveMemory(userId, {
       lastEmployee: finalCtx.employee
         ? {
-            id: finalCtx.employee.id,
-            name: finalCtx.employee.name,
-            email: finalCtx.employee.email,
-          }
+          id: finalCtx.employee.id,
+          name: finalCtx.employee.name,
+          email: finalCtx.employee.email,
+        }
         : memory.lastEmployee,
       lastDocumentType: intent.documentType ?? memory.lastDocumentType,
       lastIntent: intent.intent,

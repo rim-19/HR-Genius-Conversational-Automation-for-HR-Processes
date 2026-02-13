@@ -39,6 +39,7 @@ function assertRoleAllowed(
       "list_employees",
       "list_documents",
       "general_inquiry",
+      "general_inquiry",
     ],
   };
 
@@ -64,6 +65,11 @@ export function planActions(
   assertRoleAllowed(userRole, intent.intent);
 
   const actions: Action[] = [];
+
+  // 🗣️ GENERAL INQUIRY - No actions needed
+  if (intent.intent === "general_inquiry") {
+    return actions; // Return empty array - no system actions
+  }
 
   // 🧠 CREATE EMPLOYEE
   if (intent.intent === "create_employee") {
@@ -116,15 +122,6 @@ export function planActions(
       payload: {
         filters: intent.extraData?.filters || {}
       }
-    });
-    return actions;
-  }
-
-  // 🧠 GENERAL INQUIRY (About the app/platform)
-  if (intent.intent === "general_inquiry") {
-    actions.push({
-      type: ActionType.LOG_ACTION,
-      payload: { intent },
     });
     return actions;
   }

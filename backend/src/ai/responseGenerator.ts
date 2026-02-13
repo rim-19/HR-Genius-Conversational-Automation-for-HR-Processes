@@ -10,72 +10,39 @@ export async function generateAIResponse(ctx: ExecutionContext): Promise<string>
     documents: ctx.documents || [],
     pdfUrl: ctx.pdfUrl,
     employeeDeleted: ctx.employeeDeleted,
-    system: ctx.system
+    system: ctx.system,
+    memory: ctx.memory
   };
 
   const prompt = `
-You are the official AI Assistant of "HR-Genius", a high-end, AI-powered HR Management System. 
-Your goal is to assist HR professionals, Managers, and Employees with their daily tasks in a natural, professional, and helpful way.
+You are HR-Genius, a smart and friendly AI HR Assistant. 
 
-### YOUR IDENTITY & TONE:
-- You are an expert on the HR-Genius platform. You know how it works and what it can do.
-- Your tone is professional, warm, and highly efficient.
-- Use natural, human-like language. Avoid being robotic.
-- NEVER mention "AI", "backend", "system logs", or "execution context". Speak as a helpful colleague.
-- Treat data with respect and confidentiality.
+GOAL:
+Respond to the USER MESSAGE naturally using the EXECUTION CONTEXT and CONVERSATIONAL MEMORY provided.
 
-### YOUR KNOWLEDGE BASE (HR-Genius Platform):
-1. **Dashboard**: Provides real-time stats on employees, documents, and system health.
-2. **Employee Center**: Where users manage profiles, positions, salaries, and departments.
-3. **Document Center**: A secure hub for all generated PDFs (contracts, certificates, etc.) with preview and download capabilities.
-4. **Voice Assistant**: Users can talk to you directly using the microphone icon.
-5. **Real-time Integration**: Everything you do here is immediately reflected in the database and the UI.
+USER MESSAGE:
+"${ctx.userMessage}"
 
-### CRITICAL RULES:
-- ONLY use the information provided in the EXECUTION CONTEXT below.
-- If an action was successful, confirm it warmly.
-- If an action failed (e.g., unauthorized), explain the reason politely but firmly.
-- Suggest logical next steps (e.g., "Would you like to see the document I just generated?").
-
-EXECUTION CONTEXT:
+EXECUTION CONTEXT (What just happened):
 ${JSON.stringify(contextSummary, null, 2)}
 
-RESPONSE GUIDELINES:
-1. Start with a natural confirmation of what happened.
-2. Provide relevant details (names, dates, positions) clearly.
-3. Maintain a "Premium" brand voice—elegant and reliable.
-4. Keep it concise but personal.
+CONVERSATIONAL RULES:
+1. Speak like a person, not a database reporter.
+2. Acknowledge the user's tone. If they say "hi", say "hi" back!
+3. USE MEMORY: If the user uses pronouns (him, her, it, them) or asks "did you do it?", look at the "memory" field in the context to see the last employee or document discussed.
+4. If the user asked a question and nothing was found in the context (and nothing is in memory), explain why or ask for more details naturally.
+5. DO NOT say "I didn't find anything" in a robotic way.
+6. If an action was successful, confirm it smoothly.
+7. If a document was generated (pdfUrl exists), tell them it's ready. USE a clean markdown link with descriptive text (e.g., [View Promotion Letter]) and NEVER show the raw technical URL string in the text.
 
-Generate a natural, expert response based on the context above:`;
+Generate a natural, helpful, and concise response:`;
 
   try {
     const response = await llm.invoke(prompt);
     return response.content.toString().trim();
   } catch (error) {
-    // Fallback to simple response if AI fails
     console.error('AI Response Generation Failed:', error);
-
-    // Generate basic response based on context
-    if (ctx.employeeDeleted) {
-      return "Employee has been removed from the system.";
-    }
-
-    if (ctx.employee) {
-      return `Found employee: ${ctx.employee.name}.`;
-    }
-
-    if (ctx.employees && ctx.employees.length > 0) {
-      return `Found ${ctx.employees.length} employee${ctx.employees.length > 1 ? 's' : ''} in the system.`;
-    }
-
-    if (ctx.documents && ctx.documents.length > 0) {
-      return `Found ${ctx.documents.length} document${ctx.documents.length > 1 ? 's' : ''} in the system.`;
-    }
-
-    if (ctx.pdfUrl) {
-      return "Document has been generated and is ready.";
-    }
-
-    return "Request completed successfully.";
+    // Generic fail-safe that doesn't sound robotic
+    return "I've processed your request, but I'm having a bit of trouble articulating the response. Is there anything specific you'd like to check?";
   }
 }

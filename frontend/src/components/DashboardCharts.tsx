@@ -62,7 +62,7 @@ const DashboardCharts: React.FC = () => {
 
             {/* Hiring Growth (Bar) */}
             <div className="card glass">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Hiring Growth (2024)</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900">Hiring Growth (2026)</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={[

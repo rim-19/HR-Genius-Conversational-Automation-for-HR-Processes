@@ -228,7 +228,7 @@ export async function executeActions(
           const pdfPath = await generatePDF(title, aiContent, fileName);
 
           ctx.pdfPath = pdfPath;
-          ctx.pdfUrl = `${process.env.API_BASE_URL || 'http://localhost:5000'}/docs/${fileName}.pdf`;
+          ctx.pdfUrl = `${process.env.API_BASE_URL || 'http://127.0.0.1:5000'}/docs/${fileName}.pdf`;
 
           await prisma.document.create({
             data: {

@@ -28,6 +28,7 @@ JSON format:
 
 Rules:
 - If adding a new employee → intent = "create_employee"
+- If the user greets you, says hi, or asks how you are → intent = "general_inquiry"
 - If the user asks about the platform, features, or how to use the app → intent = "general_inquiry"
 - For CREATE, you MUST infer missing fields if possible:
   - department → "IT" if not mentioned
@@ -56,9 +57,11 @@ export async function extractHRIntent(input: string) {
 
   if (!jsonMatch) {
     console.error("❌ LLM OUTPUT WITHOUT JSON:", raw);
-    // 🛡️ Safe fallback for simple greetings
+    // 🛡️ Safe fallback for simple greetings and general queries
     const lower = input.toLowerCase();
-    if (lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) {
+    const isGreeting = ["hi", "hello", "hey", "help", "greet", "salut", "bonjour"].some(word => lower.includes(word));
+
+    if (isGreeting) {
       return {
         intent: "general_inquiry" as const,
         employeeName: null,

@@ -358,7 +358,7 @@ const Settings: React.FC = () => {
       >
         <div className="p-4 bg-gray-50 border-b border-gray-100">
           <h2 className="font-bold text-gray-800">Settings</h2>
-          <p className="text-xs text-gray-500">v2.4.0 (Build 2024)</p>
+          <p className="text-xs text-gray-500">v2.4.0 (Build 2026)</p>
         </div>
         <nav className="p-2 space-y-1">
           {navItems.map((item) => (

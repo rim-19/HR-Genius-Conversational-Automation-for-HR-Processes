@@ -9,7 +9,7 @@ export interface ExecutionContext {
     role: string;
     email?: string;
   };
-   system: {
+  system: {
     today: string;
   };
   employee?: any;
@@ -22,6 +22,8 @@ export interface ExecutionContext {
   documents?: (Document & { employee: { id: number; name: string; email: string } })[];
 
 
+  userMessage?: string;
+  memory?: any;
 }
 
 
