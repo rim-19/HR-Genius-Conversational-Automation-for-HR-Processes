@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
+import { logger } from '../config/logger';
 
 export const errorHandler = (
   err: Error | AppError,
@@ -18,8 +19,8 @@ export const errorHandler = (
     stage = err.stage;
   } else {
     // Handle unknown errors - don't expose stack traces
-    console.error('UNKNOWN ERROR:', err);
-    
+    logger.error({ err }, 'UNKNOWN ERROR');
+
     // Try to extract useful info from unknown errors
     if (err.name === 'ValidationError') {
       statusCode = 400;
@@ -55,14 +56,16 @@ export const errorHandler = (
 
   // Log error for debugging (but don't expose to client)
   if (!(err instanceof AppError) || err.statusCode >= 500) {
-    console.error('ERROR DETAILS:', {
-      message: err.message,
-      stack: err.stack,
-      url: req.url,
-      method: req.method,
-      body: req.body,
-      user: (req as any).user
-    });
+    logger.error(
+      {
+        message: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method,
+        user: (req as any).user,
+      },
+      'ERROR DETAILS'
+    );
   }
 
   res.status(statusCode).json(errorResponse);

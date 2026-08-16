@@ -25,12 +25,34 @@ model User {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  // Auth hardening
+  failedLoginAttempts Int      @default(0)
+  lockedUntil         DateTime?
+
   // Relations
   employeesCreated Employee[] @relation("CreatedByUser")
   managedEmployees Employee[] @relation("ManagerUser")
   documents       Document[]  @relation("UserDocuments")
   actions         ActionLog[] @relation("UserActions")
   conversationMemory ConversationMemory?
+  chatMessages    ChatMessage[] @relation("UserChatMessages")
+  employeeRecord  Employee?   @relation("EmployeeUser")
+  leaveReviews    LeaveRequest[] @relation("LeaveReviewer")
+  templates       DocumentTemplate[] @relation("TemplateAuthor")
+  notifications   Notification[] @relation("UserNotifications")
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  role      String   // "user" | "ai"
+  content   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    Int
+  user      User     @relation("UserChatMessages", fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
 }
 
 model Employee {
@@ -46,6 +68,13 @@ model Employee {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  // Self-service link: the login account that IS this employee
+  userId       Int?       @unique
+  user         User?      @relation("EmployeeUser", fields: [userId], references: [id])
+
+  // Leave
+  annualLeaveBalance Int   @default(20)
+
   // Relations
   managerId    Int?
   manager      User?      @relation("ManagerUser", fields: [managerId], references: [id])
@@ -53,7 +82,66 @@ model Employee {
   createdById  Int?
   createdBy    User?      @relation("CreatedByUser", fields: [createdById], references: [id])
 
-  documents    Document[]
+  documents      Document[]
+  leaveRequests  LeaveRequest[]
+}
+
+enum LeaveType {
+  annual
+  sick
+  unpaid
+}
+
+enum LeaveStatus {
+  pending
+  approved
+  rejected
+}
+
+model LeaveRequest {
+  id           Int         @id @default(autoincrement())
+  type         LeaveType   @default(annual)
+  startDate    DateTime
+  endDate      DateTime
+  days         Int
+  reason       String?
+  status       LeaveStatus @default(pending)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  employeeId   Int
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+
+  reviewedById Int?
+  reviewedBy   User?       @relation("LeaveReviewer", fields: [reviewedById], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+}
+
+model DocumentTemplate {
+  id          Int      @id @default(autoincrement())
+  type        String   @unique // promotion | salary | leave | employment
+  name        String
+  guidance    String   // instructions that steer the AI document generation
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdById Int?
+  createdBy   User?    @relation("TemplateAuthor", fields: [createdById], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String   // document | leave | employee | system
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    Int
+  user      User     @relation("UserNotifications", fields: [userId], references: [id])
+
+  @@index([userId, read])
 }
 
 model Document {

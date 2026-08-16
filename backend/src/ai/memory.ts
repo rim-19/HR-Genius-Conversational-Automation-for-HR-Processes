@@ -12,6 +12,10 @@ export interface ConversationMemory {
   };
   lastDocumentType?: "promotion" | "salary" | "leave" | "employment" | "custom";
   lastIntent?: string;
+  // A previous incomplete request that is waiting for the user to supply missing details.
+  pendingIntent?: any;
+  // A destructive request awaiting a yes/no confirmation from the user.
+  pendingConfirmation?: { intent: any };
   [key: string]: any;
 }
 

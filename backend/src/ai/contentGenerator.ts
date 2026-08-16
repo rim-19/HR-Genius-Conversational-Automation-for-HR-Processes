@@ -1,4 +1,5 @@
 import { llm } from "./llm";
+import { prisma } from "../prisma/client";
 
 export async function generateDocumentContent(params: {
   documentType: string;
@@ -13,6 +14,17 @@ export async function generateDocumentContent(params: {
     today: string;
   };
 }) {
+
+ // Load the (HR-editable) template guidance for this document type, if any.
+ let templateGuidance = "";
+ try {
+   const tpl = await prisma.documentTemplate.findUnique({
+     where: { type: params.documentType },
+   });
+   templateGuidance = tpl?.guidance || "";
+ } catch {
+   /* templates are optional — fall back to the base prompt */
+ }
 
  const prompt = `
 You are the Human Resources Director of a real company named **HR-Genius Technologies**.
@@ -44,6 +56,8 @@ The official document date is: ${params.system.today}
 
 You MUST use this date exactly.
 Do NOT invent or modify dates.
+
+${templateGuidance ? `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSPECIFIC GUIDANCE FOR THIS DOCUMENT TYPE\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n${templateGuidance}` : ""}
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

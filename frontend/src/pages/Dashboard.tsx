@@ -89,9 +89,9 @@ const AdminDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change} today
                 </div>
@@ -219,9 +219,9 @@ const HRDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>
@@ -241,31 +241,31 @@ const HRDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <DashboardCharts />
           <div className="card glass">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <button
                 onClick={() => navigate('/documents')}
-                className="flex items-center space-x-3 rounded-xl border border-gray-200 p-4 text-left transition-all hover:bg-secondary-50 hover:border-secondary-200"
+                className="flex items-center space-x-3 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-left transition-all hover:bg-secondary-50 dark:hover:bg-secondary-900/10 hover:border-secondary-200"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary-500 text-white shadow-md">
                   <FiFileText className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white">Create Document</p>
-                  <p className="text-xs text-gray-500">Fast PDF generation</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Fast PDF generation</p>
                 </div>
               </button>
 
               <button
                 onClick={() => navigate('/employees')}
-                className="flex items-center space-x-3 rounded-xl border border-gray-200 p-4 text-left transition-all hover:bg-green-50 hover:border-green-200"
+                className="flex items-center space-x-3 rounded-xl border border-gray-200 dark:border-gray-700 p-4 text-left transition-all hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-200"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500 text-white shadow-md">
                   <FiUsers className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 dark:text-white">Directory</p>
-                  <p className="text-xs text-gray-500">Manage all staff</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Manage all staff</p>
                 </div>
               </button>
             </div>
@@ -357,9 +357,9 @@ const ManagerDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>
@@ -376,14 +376,14 @@ const ManagerDashboard: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="card glass">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Active Requests</h2>
-              <span className="text-xs bg-primary-100 text-primary-700 font-bold px-2 py-1 rounded">2 NEW</span>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Active Requests</h2>
+              <span className="text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-bold px-2 py-1 rounded">2 NEW</span>
             </div>
             <div className="space-y-3">
               {pendingApprovals.map((approval) => (
                 <div
                   key={approval.id}
-                  className="flex items-center justify-between rounded-xl border border-gray-100 p-4 transition-all hover:bg-gray-50"
+                  className="flex items-center justify-between rounded-xl border border-gray-100 dark:border-gray-700 p-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="p-3 bg-secondary-50 dark:bg-secondary-900/20 rounded-xl">
@@ -391,7 +391,7 @@ const ManagerDashboard: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-gray-900 dark:text-white">{approval.type}</p>
-                      <p className="text-xs text-gray-500">{approval.employee} • {approval.date}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{approval.employee} • {approval.date}</p>
                     </div>
                   </div>
                   <button className="px-4 py-2 bg-primary-600 text-white text-xs font-bold rounded-lg hover:bg-primary-700 transition-colors">
@@ -409,14 +409,14 @@ const ManagerDashboard: React.FC = () => {
                 <div className="p-2 bg-primary-500 text-white rounded-lg"><FiUsers /></div>
                 <div className="text-left">
                   <p className="text-sm font-bold text-gray-900 dark:text-white">My Team</p>
-                  <p className="text-[10px] text-gray-500">View roster</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">View roster</p>
                 </div>
               </button>
               <button onClick={() => navigate('/assistant')} className="flex items-center space-x-3 p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-secondary-50 dark:hover:bg-secondary-900/10 transition-all">
                 <div className="p-2 bg-secondary-500 text-white rounded-lg"><HiSparkles /></div>
                 <div className="text-left">
                   <p className="text-sm font-bold text-gray-900 dark:text-white">Ask AI</p>
-                  <p className="text-[10px] text-gray-500">Manager assist</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Manager assist</p>
                 </div>
               </button>
             </div>
@@ -506,9 +506,9 @@ const EmployeeDashboard: React.FC = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.name}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                <div className="mt-2 flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full w-fit">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{stat.name}</p>
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                <div className="mt-2 flex items-center text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-full w-fit">
                   <FiTrendingUp className="mr-1" />
                   {stat.change}
                 </div>
@@ -532,7 +532,7 @@ const EmployeeDashboard: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Recent Documents</h2>
             <button
               onClick={() => navigate('/documents')}
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-medium"
             >
               View all
             </button>
@@ -549,7 +549,7 @@ const EmployeeDashboard: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">{doc.title}</p>
-                    <p className="text-xs text-gray-500">{new Date(doc.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(doc.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <span className="inline-flex rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-green-800 dark:text-green-400">
@@ -558,7 +558,7 @@ const EmployeeDashboard: React.FC = () => {
               </div>
             ))}
             {recentDocs.length === 0 && (
-              <p className="text-center py-8 text-sm text-gray-500 italic">No recent documents</p>
+              <p className="text-center py-8 text-sm text-gray-500 dark:text-gray-400 italic">No recent documents</p>
             )}
           </div>
         </motion.div>
@@ -572,7 +572,7 @@ const EmployeeDashboard: React.FC = () => {
           <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Request Document</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Type</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Type</label>
               <select className="input w-full">
                 <option>Employment Certificate</option>
                 <option>Salary Statement</option>
@@ -580,7 +580,7 @@ const EmployeeDashboard: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Notes</label>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Notes</label>
               <textarea
                 className="input w-full"
                 rows={2}
@@ -611,7 +611,7 @@ const EmployeeDashboard: React.FC = () => {
             </div>
             <div>
               <p className="font-bold text-gray-900 dark:text-white">AI Assistant</p>
-              <p className="text-xs text-gray-500">24/7 Smart support</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">24/7 Smart support</p>
             </div>
           </button>
 
@@ -624,7 +624,7 @@ const EmployeeDashboard: React.FC = () => {
             </div>
             <div>
               <p className="font-bold text-gray-900 dark:text-white">File Hub</p>
-              <p className="text-xs text-gray-500">Your document library</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Your document library</p>
             </div>
           </button>
         </div>
@@ -686,8 +686,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Loading dashboard...</h2>
-        <p className="mt-2 text-sm text-gray-600">Please wait while we load your dashboard</p>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Loading dashboard...</h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Please wait while we load your dashboard</p>
       </div>
     </div>
   );

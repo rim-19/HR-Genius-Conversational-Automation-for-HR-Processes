@@ -43,7 +43,7 @@ const NotAuthorized: React.FC = () => {
         - p-10: padding de 40px
         - shadow-lg: ombre importante pour la profondeur
       */}
-      <div className="rounded-2xl bg-white p-10 shadow-lg">
+      <div className="rounded-2xl bg-white dark:bg-gray-800 p-10 shadow-lg">
         {/* 
           Icône de bouclier animée
           - Animation avec effet "spring" (ressort) pour un effet dynamique
@@ -55,9 +55,9 @@ const NotAuthorized: React.FC = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring" }}
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100"
+          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40"
         >
-          <FiShield className="h-10 w-10 text-red-600" />
+          <FiShield className="h-10 w-10 text-red-600 dark:text-red-400" />
         </motion.div>
 
         {/* 
@@ -65,7 +65,7 @@ const NotAuthorized: React.FC = () => {
           - text-2xl: taille de texte large
           - font-semibold: poids de police semi-gras
         */}
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           You are not authorized to view this page
         </h1>
 
@@ -75,7 +75,7 @@ const NotAuthorized: React.FC = () => {
           - text-sm: taille de texte petite
           - text-gray-600: couleur grise pour moins d'emphase
         */}
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Please check with your administrator if you believe this is an error.
         </p>
 

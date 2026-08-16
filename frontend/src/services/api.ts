@@ -21,14 +21,31 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Response interceptor — silent token refresh on 401, then logout.
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Unauthorized - clear user data and redirect to login
+  async (error) => {
+    const original = error.config || {};
+    const status = error.response?.status;
+
+    const isAuthCall = typeof original.url === 'string' && original.url.includes('/auth/');
+    if (status === 401 && !original._retry && !isAuthCall) {
+      original._retry = true;
+      const refreshToken = localStorage.getItem('hr_genius_refresh');
+      if (refreshToken) {
+        try {
+          const resp = await api.post('/auth/refresh', { refreshToken });
+          const newToken = resp.data.token;
+          localStorage.setItem('hr_genius_token', newToken);
+          original.headers = { ...original.headers, Authorization: `Bearer ${newToken}` };
+          return api(original); // retry the original request
+        } catch {
+          /* refresh failed → fall through to logout */
+        }
+      }
       localStorage.removeItem('hr_genius_user');
       localStorage.removeItem('hr_genius_token');
+      localStorage.removeItem('hr_genius_refresh');
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -101,6 +118,38 @@ export const documentsAPI = {
 export const dashboardAPI = {
   getStats: () => api.get('/stats'),
   getActivity: () => api.get('/activity'),
+};
+
+// Self-service ("me")
+export const meAPI = {
+  getMyEmployee: () => api.get('/me/employee'),
+};
+
+// Leave management
+export const leaveAPI = {
+  list: () => api.get('/leave'),
+  create: (data: { type?: string; startDate: string; endDate: string; reason?: string; employeeId?: number }) =>
+    api.post('/leave', data),
+  review: (id: number, status: 'approved' | 'rejected') => api.patch(`/leave/${id}`, { status }),
+};
+
+// Notifications
+export const notificationsAPI = {
+  list: () => api.get('/notifications'),
+  markRead: (id: number) => api.patch(`/notifications/${id}/read`),
+  markAllRead: () => api.patch('/notifications/read-all'),
+};
+
+// Document templates
+export const templatesAPI = {
+  list: () => api.get('/templates'),
+  update: (id: number, data: { name?: string; guidance?: string }) => api.put(`/templates/${id}`, data),
+};
+
+// Audit log + GDPR export
+export const auditAPI = {
+  list: (page: number = 1, limit: number = 20) => api.get(`/audit?page=${page}&limit=${limit}`),
+  exportEmployee: (id: number) => api.get(`/audit/employee/${id}/export`),
 };
 
 export default api;

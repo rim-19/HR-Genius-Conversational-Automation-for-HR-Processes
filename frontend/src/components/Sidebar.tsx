@@ -9,6 +9,10 @@ import {
   FiSettings,
   FiChevronLeft,
   FiChevronRight,
+  FiUser,
+  FiCalendar,
+  FiLayers,
+  FiActivity,
 } from 'react-icons/fi';
 import { HiSparkles } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
@@ -87,6 +91,30 @@ const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
       ],
     },
     {
+      path: '/leave',
+      icon: FiCalendar,
+      label: 'Leave',
+      roles: [UserRole.ADMIN, UserRole.HR, UserRole.MANAGER, UserRole.EMPLOYEE],
+    },
+    {
+      path: '/my-profile',
+      icon: FiUser,
+      label: 'My Profile',
+      roles: [UserRole.EMPLOYEE],
+    },
+    {
+      path: '/templates',
+      icon: FiLayers,
+      label: 'Templates',
+      roles: [UserRole.ADMIN, UserRole.HR],
+    },
+    {
+      path: '/audit',
+      icon: FiActivity,
+      label: 'Audit Log',
+      roles: [UserRole.ADMIN],
+    },
+    {
       path: '/settings',
       icon: FiSettings,
       label: 'Settings',
@@ -112,14 +140,14 @@ const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
     */
     <motion.aside
       animate={{ width: isCollapsed ? 80 : 256 }}
-      className={`relative flex flex-col border-r border-gray-200 bg-white shadow-sm ${className || 'hidden md:flex'}`}
+      className={`relative flex flex-col border-r border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 ${className || 'hidden md:flex'}`}
     >
       {/* 
         En-tête avec logo et nom de l'application
         - h-16: hauteur fixe de 64px (4rem)
         - border-b: bordure inférieure pour séparer du menu
       */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4 dark:border-gray-700">
         {/* 
           Affichage conditionnel selon l'état collapsed:
           - Si non réduit: affiche le logo + nom + description
@@ -138,8 +166,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
             </div>
             {/* Nom et description de l'application */}
             <div>
-              <h1 className="text-lg font-bold text-gray-900">HR-Genius</h1>
-              <p className="text-xs text-gray-500">AI Assistant</p>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">HR-Genius</h1>
+              <p className="text-xs text-gray-500 dark:text-gray-400">AI Assistant</p>
             </div>
           </motion.div>
         ) : (
@@ -178,8 +206,8 @@ const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
               onClick={onClose}
               className={({ isActive }) =>
                 `flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${isActive
-                  ? 'bg-primary-50 text-primary-700 shadow-sm' // Style pour la page active
-                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' // Style pour les pages inactives
+                  ? 'bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-900/30 dark:text-primary-300' // Style pour la page active
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100' // Style pour les pages inactives
                 }`
               }
             >
@@ -200,7 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className, onClose }) => {
       */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition-colors hover:bg-gray-100"
+        className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
       >
         {/* 
           Affichage conditionnel de l'icône selon l'état:

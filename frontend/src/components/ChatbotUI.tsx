@@ -195,7 +195,7 @@ const ChatbotUI: React.FC<ChatbotUIProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-200 bg-white p-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
         <form onSubmit={handleSubmit} className="flex items-center space-x-2">
           <input
             type="text"
@@ -203,14 +203,14 @@ const ChatbotUI: React.FC<ChatbotUIProps> = ({
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : "Type your message..."}
             disabled={isLoading}
-            className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100"
+            className="flex-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-100 dark:disabled:bg-gray-800"
           />
           <button
             type="button"
             onClick={toggleVolume}
             className={`rounded-lg border p-2 transition-colors ${isVolumeOn
-              ? "border-primary-500 bg-primary-50 text-primary-600"
-              : "border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              ? "border-primary-500 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"
+              : "border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
               }`}
             title="Toggle Voice Response"
           >
@@ -220,8 +220,8 @@ const ChatbotUI: React.FC<ChatbotUIProps> = ({
             type="button"
             onClick={startListening}
             className={`rounded-lg border p-2 transition-colors ${isListening
-              ? "border-red-500 bg-red-50 text-red-600 animate-pulse"
-              : "border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              ? "border-red-500 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 animate-pulse"
+              : "border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
               }`}
             title="Voice input"
             disabled={isLoading}

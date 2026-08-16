@@ -81,8 +81,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       <div className="absolute right-4 top-4">
         <span
           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${employee.status === "active"
-              ? "bg-green-100 text-green-800" // Style vert pour actif
-              : "bg-gray-100 text-gray-800" // Style gris pour inactif
+              ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300" // Style vert pour actif
+              : "bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-300" // Style gris pour inactif
             }`}
         >
           {/* Affiche le statut ou "active" par défaut */}
@@ -119,13 +119,13 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         */}
         <div className="flex-1">
           {/* Nom de l'employé */}
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {employee.name}
           </h3>
           {/* Poste/Position */}
-          <p className="text-sm text-gray-600">{employee.position}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{employee.position}</p>
           {/* Département */}
-          <p className="text-xs text-gray-500">{employee.department}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{employee.department}</p>
         </div>
       </div>
 
@@ -136,12 +136,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       */}
       <div className="mt-4 space-y-2">
         {/* Ligne d'email avec icône */}
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
           <FiMail className="h-4 w-4" />
           <span>{employee.email}</span>
         </div>
         {/* Ligne de téléphone avec icône */}
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
           <FiPhone className="h-4 w-4" />
           <span>{employee.phone}</span>
         </div>
@@ -159,7 +159,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         */}
         <button
           onClick={() => setShowMenu(!showMenu)}
-          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-2 text-gray-400 dark:text-gray-500 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300"
         >
           <FiMoreVertical className="h-5 w-5" />
         </button>
@@ -175,7 +175,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute bottom-full right-0 mb-2 w-32 rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+            className="absolute bottom-full right-0 mb-2 w-32 rounded-lg bg-white dark:bg-gray-800 py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-gray-700"
           >
             {/* 
               Bouton d'édition
@@ -187,7 +187,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 setShowMenu(false); // Ferme le menu
                 onEdit?.(employee); // Appelle la fonction onEdit si elle existe
               }}
-              className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              className="block w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Edit
             </button>
@@ -201,7 +201,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
                 setShowMenu(false); // Ferme le menu
                 onDelete?.(employee.id); // Appelle la fonction onDelete si elle existe
               }}
-              className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+              className="block w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               Delete
             </button>

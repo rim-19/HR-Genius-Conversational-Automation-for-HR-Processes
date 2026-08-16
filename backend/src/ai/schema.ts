@@ -7,6 +7,8 @@ export const HRIntentSchema = z.object({
     "delete_employee",
     "generate_document",
     "list_employees",
+    "list_documents",
+    "policy_question",
     "general_inquiry",
   ]),
 

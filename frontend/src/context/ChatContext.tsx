@@ -83,18 +83,83 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setMessages((prev) => [...prev, newMessage]);
     }, []);
 
+    // Update a single AI message (by id) as streamed tokens arrive.
+    const upsertAiMessage = (id: string, text: string) => {
+        setMessages((prev) => {
+            const exists = prev.some((m) => m.id === id);
+            if (exists) {
+                return prev.map((m) => (m.id === id ? { ...m, text } : m));
+            }
+            return [...prev, { id, text, sender: 'ai', timestamp: new Date() }];
+        });
+    };
+
     const sendMessage = async (text: string) => {
         addMessage(text, 'user');
         setIsLoading(true);
 
+        const apiBase = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
+        const token = localStorage.getItem('hr_genius_token');
+        const aiId = `ai-${Date.now()}`;
+
         try {
-            const response = await assistantAPI.sendMessage(text);
-            addMessage(response.data.message, 'ai');
+            const resp = await fetch(`${apiBase}/ai/message/stream`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({ message: text }),
+            });
+
+            if (!resp.ok || !resp.body) {
+                throw new Error(`stream request failed (${resp.status})`);
+            }
+
+            const reader = resp.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let aiText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+
+                // SSE frames are separated by a blank line.
+                const frames = buffer.split('\n\n');
+                buffer = frames.pop() || '';
+
+                for (const frame of frames) {
+                    const lines = frame.split('\n');
+                    const eventType = (lines.find((l) => l.startsWith('event:')) || '').slice(6).trim();
+                    const dataLine = (lines.find((l) => l.startsWith('data:')) || '').slice(5).trim();
+                    if (!dataLine) continue;
+
+                    let payload: any;
+                    try { payload = JSON.parse(dataLine); } catch { continue; }
+
+                    if (eventType === 'token') {
+                        aiText += payload.token || '';
+                        upsertAiMessage(aiId, aiText);
+                    } else if (eventType === 'done') {
+                        aiText = payload.message ?? aiText;
+                        upsertAiMessage(aiId, aiText);
+                    } else if (eventType === 'error') {
+                        upsertAiMessage(aiId, `⚠️ ${payload.message || 'Something went wrong.'}`);
+                    }
+                }
+            }
         } catch (error: any) {
-            console.error('Error sending message:', error);
-            // Instead of toast, add error as AI message
-            const errorMessage = error.response?.data?.message || 'Sorry, I encountered an error processing your request.';
-            addMessage(`⚠️ Error: ${errorMessage}`, 'ai');
+            // Fallback to the buffered (non-streaming) endpoint.
+            console.error('Streaming failed, falling back:', error);
+            try {
+                const response = await assistantAPI.sendMessage(text);
+                upsertAiMessage(aiId, response.data.message);
+            } catch (err: any) {
+                const errorMessage = err.response?.data?.message || 'Sorry, I encountered an error processing your request.';
+                upsertAiMessage(aiId, `⚠️ Error: ${errorMessage}`);
+            }
         } finally {
             setIsLoading(false);
         }

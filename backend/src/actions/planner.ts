@@ -17,6 +17,8 @@ function assertRoleAllowed(
       "generate_document",
       "list_employees",
       "list_documents",
+      "analytics_query",
+      "policy_question",
       "general_inquiry",
     ],
     HR: [
@@ -26,6 +28,8 @@ function assertRoleAllowed(
       "generate_document",
       "list_employees",
       "list_documents",
+      "analytics_query",
+      "policy_question",
       "general_inquiry",
     ],
     MANAGER: [
@@ -33,12 +37,14 @@ function assertRoleAllowed(
       "generate_document",
       "list_employees",
       "list_documents",
+      "analytics_query",
+      "policy_question",
       "general_inquiry",
     ],
     EMPLOYEE: [
       "list_employees",
       "list_documents",
-      "general_inquiry",
+      "policy_question",
       "general_inquiry",
     ],
   };
@@ -46,8 +52,16 @@ function assertRoleAllowed(
   const allowedIntents = permissions[role] ?? [];
 
   if (!allowedIntents.includes(intentName)) {
-    throw AppError.forbidden(
-      `Forbidden: role '${role}' cannot perform '${intentName}'`,
+    const actionText: Record<string, string> = {
+      create_employee: "add employees",
+      update_employee: "update employee records",
+      delete_employee: "remove employees",
+      generate_document: "generate documents",
+      list_employees: "view the employee list",
+      list_documents: "view documents",
+    };
+    throw AppError.conversational(
+      `Sorry, your ${role} role doesn't allow you to ${actionText[intentName] || "do that"}. Let me know if there's something else I can help with.`,
       "planner"
     );
   }
@@ -69,6 +83,27 @@ export function planActions(
   // 🗣️ GENERAL INQUIRY - No actions needed
   if (intent.intent === "general_inquiry") {
     return actions; // Return empty array - no system actions
+  }
+
+  // 📚 POLICY QUESTION - retrieve grounded knowledge from the HR handbook
+  if (intent.intent === "policy_question") {
+    actions.push({
+      type: ActionType.KNOWLEDGE_QUERY,
+      payload: {},
+    });
+    return actions;
+  }
+
+  // 📊 ANALYTICS - aggregate over employees (avg salary, headcount, ...)
+  if (intent.intent === "analytics_query") {
+    actions.push({
+      type: ActionType.AGGREGATE_ENTITY,
+      payload: {
+        metric: intent.extraData?.metric || null,
+        groupBy: intent.extraData?.groupBy || "department",
+      },
+    });
+    return actions;
   }
 
   // 🧠 CREATE EMPLOYEE
@@ -106,11 +141,20 @@ export function planActions(
 
   // 🧠 LIST EMPLOYEES
   if (intent.intent === "list_employees") {
+    const ed = intent.extraData || {};
+    const filters: any = { ...(ed.filters || {}) };
+
+    // Build Prisma filters from natural-language fields the LLM extracted
+    if (ed.department) {
+      filters.department = { equals: String(ed.department), mode: "insensitive" };
+    }
+    if (ed.status) {
+      filters.status = String(ed.status).toLowerCase();
+    }
+
     actions.push({
       type: ActionType.MULTI_READ_ENTITY,
-      payload: {
-        filters: intent.extraData?.filters || {}
-      }
+      payload: { filters }
     });
     return actions;
   }

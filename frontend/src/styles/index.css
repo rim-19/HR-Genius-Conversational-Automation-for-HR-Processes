@@ -18,7 +18,7 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -72,24 +72,28 @@
   }
 
   .btn-outline {
-    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
+    @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700;
   }
 
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl transition-all duration-300;
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-xl transition-all duration-300 dark:bg-gray-900/70 dark:border-gray-700/40;
   }
 
   .card {
-    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-gray-100;
+    @apply rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white border border-gray-100 dark:bg-gray-800 dark:border-gray-700;
   }
 
   .input {
-    @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm transition-all focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+    @apply block w-full rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm transition-all focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100;
     padding: 0.625rem 0.875rem;
   }
 
   .input::placeholder {
     color: #6b7280;
+  }
+
+  .dark .input::placeholder {
+    color: #9ca3af;
   }
 
   .chat-bubble {
@@ -101,7 +105,7 @@
   }
 
   .chat-bubble-ai {
-    @apply mr-auto rounded-bl-none text-gray-900 bg-[#f0f7ff] border border-blue-50/50;
+    @apply mr-auto rounded-bl-none text-gray-900 bg-[#f0f7ff] border border-blue-50/50 dark:text-gray-100 dark:bg-gray-800 dark:border-gray-700;
   }
 }
 
@@ -149,13 +153,13 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  @apply bg-gray-100 dark:bg-gray-800;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-gray-400;
+  @apply rounded-full bg-gray-400 dark:bg-gray-600;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  @apply bg-gray-500 dark:bg-gray-500;
 }

@@ -13,7 +13,7 @@ const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
       {/* Desktop Sidebar (visible on md+) */}
       <Sidebar className="hidden md:flex" />
 
@@ -26,7 +26,7 @@ const MainLayout: React.FC = () => {
       )}
 
       {/* Mobile Sidebar (Slide-in) */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white transition-transform duration-300 md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white transition-transform duration-300 dark:bg-gray-900 md:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar className="flex h-full w-full" onClose={() => setIsMobileMenuOpen(false)} />
       </div>
 
@@ -35,7 +35,7 @@ const MainLayout: React.FC = () => {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Navbar onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-gray-50 p-4 dark:bg-gray-950 md:p-6">
           <div className="mx-auto max-w-7xl">
             <AnimatePresence mode="wait">
               <motion.div

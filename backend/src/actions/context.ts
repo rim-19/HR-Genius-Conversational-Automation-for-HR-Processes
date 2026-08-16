@@ -24,6 +24,16 @@ export interface ExecutionContext {
 
   userMessage?: string;
   memory?: any;
+
+  // 🔹 RAG: retrieved HR-handbook passages for a policy question
+  knowledge?: { source: string; text: string; score: number }[];
+
+  // 🔹 Aggregated analytics results (avg salary, headcount, ...)
+  analytics?: {
+    metric: string;
+    groupBy: string;
+    rows: { group: string; value: number; count: number }[];
+  };
 }
 
 

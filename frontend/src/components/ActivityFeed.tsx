@@ -51,10 +51,10 @@ const ActivityFeed: React.FC = () => {
     return (
         <div className="card glass">
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Live Activity Feed</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Live Activity Feed</h3>
                 <button
                     onClick={fetchActivity}
-                    className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                    className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 text-sm font-medium"
                 >
                     Refresh
                 </button>
@@ -62,7 +62,7 @@ const ActivityFeed: React.FC = () => {
 
             <div className="space-y-4">
                 {isLoading ? (
-                    <div className="py-8 text-center text-gray-500">Loading activity...</div>
+                    <div className="py-8 text-center text-gray-500 dark:text-gray-400">Loading activity...</div>
                 ) : activities.length > 0 ? (
                     activities.map((activity, index) => (
                         <motion.div
@@ -70,26 +70,26 @@ const ActivityFeed: React.FC = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-start space-x-3 border-l-2 border-gray-100 pl-4 py-1"
+                            className="flex items-start space-x-3 border-l-2 border-gray-100 dark:border-gray-700 pl-4 py-1"
                         >
-                            <div className="mt-1 rounded-full bg-white p-2 shadow-sm border border-gray-100">
+                            <div className="mt-1 rounded-full bg-white dark:bg-gray-800 p-2 shadow-sm border border-gray-100 dark:border-gray-700">
                                 {getIcon(activity.action)}
                             </div>
                             <div className="flex-1">
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {activity.user?.name || 'User'}
                                 </p>
-                                <p className="text-xs text-gray-600">
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
                                     {formatDescription(activity.description)}
                                 </p>
-                                <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase tracking-wider">
                                     {new Date(activity.createdAt).toLocaleString()}
                                 </p>
                             </div>
                         </motion.div>
                     ))
                 ) : (
-                    <div className="py-8 text-center text-gray-500 italic">No recent activity</div>
+                    <div className="py-8 text-center text-gray-500 dark:text-gray-400 italic">No recent activity</div>
                 )}
             </div>
         </div>

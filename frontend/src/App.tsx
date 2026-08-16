@@ -1,6 +1,30 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { ToastContainer } from 'react-toastify';
 import { AppRouter } from './router';
 import { ChatProvider } from './context/ChatContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+
+/**
+ * ToastContainer qui suit le thème actif (clair/sombre).
+ * Doit être rendu à l'intérieur du ThemeProvider pour accéder au contexte.
+ */
+const ThemedToastContainer: React.FC = () => {
+  const { theme } = useTheme();
+  return (
+    <ToastContainer
+      position="top-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme={theme}
+    />
+  );
+};
 
 /**
  * Composant App - Composant racine de l'application
@@ -12,16 +36,13 @@ import { ChatProvider } from './context/ChatContext';
  * dans AppRouter. Ce composant reste minimal pour une meilleure séparation des responsabilités.
  */
 function App() {
-  // Global cleanup to remove any ghost dark mode
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.removeItem('hr_genius_theme');
-  }, []);
-
   return (
-    <ChatProvider>
-      <AppRouter />
-    </ChatProvider>
+    <ThemeProvider>
+      <ChatProvider>
+        <AppRouter />
+      </ChatProvider>
+      <ThemedToastContainer />
+    </ThemeProvider>
   );
 }
 

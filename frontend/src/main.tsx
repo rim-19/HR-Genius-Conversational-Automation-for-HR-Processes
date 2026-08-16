@@ -5,7 +5,6 @@ import { BrowserRouter as Router } from 'react-router-dom'; //Navigation entre l
 import { AuthProvider } from './context/AuthContext'; //Ton contexte d'authentification → gère le user connecté, login, logout.
 import App from './App';
 import './styles/index.css';
-import { ToastContainer } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';//Affiche les notifications (succès, erreurs…).
 
 /**
@@ -71,31 +70,9 @@ root.render(
           - logout: fonction de déconnexion
         */}
         <AuthProvider>
-          {/* Composant principal de l'application */}
+          {/* Composant principal de l'application
+              (inclut le ToastContainer, déplacé dans App pour suivre le thème) */}
           <App />
-          
-          {/* 
-            ToastContainer - Container pour les notifications toast
-            Configuration:
-            - position: top-right - Position en haut à droite
-            - autoClose: 5000 - Ferme automatiquement après 5 secondes
-            - hideProgressBar: false - Affiche la barre de progression
-            - closeOnClick: true - Se ferme au clic
-            - draggable: true - Peut être déplacé
-            - pauseOnHover: true - Met en pause le timer au survol
-          */}
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-          />
         </AuthProvider>
       </Router>
     </QueryClientProvider>

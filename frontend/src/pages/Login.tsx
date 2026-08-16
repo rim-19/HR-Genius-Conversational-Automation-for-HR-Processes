@@ -91,9 +91,9 @@ const Login: React.FC = () => {
             <HiSparkles className="h-8 w-8 text-white" />
           </motion.div>
           {/* Nom de l'application */}
-          <h1 className="text-3xl font-bold text-gray-900">HR-Genius</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">HR-Genius</h1>
           {/* Description */}
-          <p className="mt-2 text-gray-600">AI-Powered HR Assistant</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">AI-Powered HR Assistant</p>
         </div>
 
         {/* 
@@ -106,10 +106,10 @@ const Login: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-2xl bg-white p-8 shadow-xl"
+          className="rounded-2xl bg-white dark:bg-gray-800 p-8 shadow-xl"
         >
           {/* Titre du formulaire */}
-          <h2 className="mb-6 text-2xl font-semibold text-gray-900">
+          <h2 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">
             Welcome back
           </h2>
 
@@ -120,14 +120,14 @@ const Login: React.FC = () => {
               {/* Label du champ email */}
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Email Address
               </label>
               {/* Container relatif pour positionner l'icône */}
               <div className="relative mt-1">
                 {/* Icône d'email positionnée à gauche du champ */}
-                <FiMail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <FiMail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 {/* 
                   Champ de saisie email
                   - type="email": validation HTML5 pour le format email
@@ -152,12 +152,12 @@ const Login: React.FC = () => {
               {/* Password */}
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Password
               </label>
               <div className="relative mt-1">
-                <FiLock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <FiLock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -170,7 +170,7 @@ const Login: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                 >
                   {showPassword ? (
                     <FiEyeOff className="h-5 w-5" />
@@ -186,13 +186,13 @@ const Login: React.FC = () => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-700 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
               </label>
               <a
                 href="#"
-                className="text-sm font-medium text-primary-600 hover:text-primary-500"
+                className="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
               >
                 Forgot password?
               </a>
@@ -215,19 +215,19 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 rounded-lg bg-primary-50 p-4">
-            <p className="text-sm text-primary-800">
+          <div className="mt-6 rounded-lg bg-primary-50 dark:bg-primary-900/30 p-4">
+            <p className="text-sm text-primary-800 dark:text-primary-300">
               Login with your HR-Genius credentials.
             </p>
           </div>
         </motion.div>
 
         {/* Footer */}
-        <p className="mt-8 text-center text-sm text-gray-600">
+        <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
           Don't have an account?{" "}
           <a
             href="#"
-            className="font-medium text-primary-600 hover:text-primary-500"
+            className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
           >
             Contact your administrator
           </a>

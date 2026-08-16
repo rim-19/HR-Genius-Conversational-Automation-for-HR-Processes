@@ -97,11 +97,11 @@ const Employees: React.FC = () => {
             - Managers voient "My Team"
             - Autres voient "Employees"
           */}
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {isManager ? "My Team" : "Employees"}
           </h1>
           {/* Description qui change selon le rôle */}
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {isManager
               ? "View your team members and their information"
               : "Manage your team members and their information"}
@@ -141,7 +141,7 @@ const Employees: React.FC = () => {
         */}
         <div className="relative flex-1">
           {/* Icône de recherche positionnée à gauche */}
-          <FiSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+          <FiSearch className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           {/* 
             Champ de saisie de recherche
             - value: valeur contrôlée par searchQuery
@@ -176,7 +176,7 @@ const Employees: React.FC = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           Showing{" "}
           <span className="font-semibold">{filteredEmployees.length}</span> of{" "}
           <span className="font-semibold">{employees.length}</span> employees
@@ -204,7 +204,7 @@ const Employees: React.FC = () => {
           </div>
 
           {/* Pagination Controls */}
-          <div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
+          <div className="mt-8 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -223,7 +223,7 @@ const Employees: React.FC = () => {
             </div>
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   Showing page <span className="font-medium">{currentPage}</span> of{" "}
                   <span className="font-medium">{totalPages}</span>
                 </p>
@@ -243,7 +243,7 @@ const Employees: React.FC = () => {
                       onClick={() => setCurrentPage(i + 1)}
                       className={`h-10 w-10 flex-shrink-0 rounded-lg text-sm font-medium transition-colors ${currentPage === i + 1
                         ? "bg-primary-600 text-white"
-                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700"
                         }`}
                     >
                       {i + 1}
@@ -267,13 +267,13 @@ const Employees: React.FC = () => {
           animate={{ opacity: 1 }}
           className="card py-12 text-center"
         >
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-            <FiSearch className="h-8 w-8 text-gray-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+            <FiSearch className="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             No employees found
           </h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Try adjusting your search query or filters
           </p>
         </motion.div>

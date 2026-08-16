@@ -6,6 +6,6 @@ if (!process.env.GEMINI_API_KEY) {
 
 export const llm = new ChatGoogleGenerativeAI({
   modelName: "models/gemini-2.5-flash",
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "dummy_key",
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
   maxRetries: 2,
 });

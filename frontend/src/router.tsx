@@ -8,6 +8,10 @@ import Assistant from "./pages/Assistant";
 import Employees from "./pages/Employees";
 import Documents from "./pages/Documents";
 import Settings from "./pages/Settings";
+import MyProfile from "./pages/MyProfile";
+import Leave from "./pages/Leave";
+import Templates from "./pages/Templates";
+import AuditLog from "./pages/AuditLog";
 import NotAuthorized from "./pages/NotAuthorized";
 import { UserRole } from "./utils/roles";
 
@@ -204,7 +208,33 @@ export const AppRouter = () => {
         */}
         <Route path="documents" element={<Documents />} />
 
-        {/* 
+        {/* My Profile - self-service (any authenticated user; shows a notice if unlinked) */}
+        <Route path="my-profile" element={<MyProfile />} />
+
+        {/* Leave management - any authenticated user (view depends on role) */}
+        <Route path="leave" element={<Leave />} />
+
+        {/* Document templates - ADMIN / HR */}
+        <Route
+          path="templates"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.HR]}>
+              <Templates />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Audit log - ADMIN only */}
+        <Route
+          path="audit"
+          element={
+            <RoleProtectedRoute allowedRoles={[UserRole.ADMIN]}>
+              <AuditLog />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/*
           Paramètres - Accessible uniquement à ADMIN
           Configuration système et paramètres de l'application
         */}

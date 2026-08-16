@@ -70,9 +70,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       const response = await api.post('/auth/login', { email, password });
 
-      const { token, user: userData } = response.data;
+      const { token, refreshToken, user: userData } = response.data;
 
       localStorage.setItem("hr_genius_token", token);
+      if (refreshToken) localStorage.setItem("hr_genius_refresh", refreshToken);
       localStorage.setItem("hr_genius_user", JSON.stringify(userData));
 
       setUser(userData);
@@ -92,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem("hr_genius_user");
     localStorage.removeItem("hr_genius_token");
+    localStorage.removeItem("hr_genius_refresh");
     toast.info("You have been logged out.");
     navigate("/login");
   };

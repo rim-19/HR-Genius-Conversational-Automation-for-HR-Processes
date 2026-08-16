@@ -33,7 +33,7 @@ const GlobalChat: React.FC = () => {
                         initial={{ opacity: 0, y: 100, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 100, scale: 0.9 }}
-                        className="fixed bottom-6 right-6 z-50 flex h-[600px] w-[400px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5"
+                        className="fixed bottom-6 right-6 z-50 flex h-[600px] w-[400px] flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl ring-1 ring-black ring-opacity-5 dark:ring-gray-700"
                     >
                         {/* Chat Header */}
                         <div className="flex items-center justify-between bg-primary-600 px-4 py-3 text-white">
@@ -55,7 +55,7 @@ const GlobalChat: React.FC = () => {
                         </div>
 
                         {/* Chat Body */}
-                        <div className="flex-1 overflow-hidden bg-gray-50">
+                        <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900">
                             <ChatbotUI
                                 messages={messages}
                                 onSendMessage={sendMessage}

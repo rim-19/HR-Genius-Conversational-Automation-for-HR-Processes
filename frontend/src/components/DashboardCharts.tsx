@@ -11,6 +11,7 @@ import {
     Pie,
     Cell
 } from 'recharts';
+import { useTheme } from '../context/ThemeContext';
 
 const data = [
     { name: 'Engineering', value: 45 },
@@ -23,11 +24,26 @@ const data = [
 const COLORS = ['#0ea5e9', '#ec4899', '#8b5cf6', '#10b981', '#f59e0b'];
 
 const DashboardCharts: React.FC = () => {
+    // Recharts dessine en SVG avec des couleurs en dur — on les adapte au thème
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
+    const gridStroke = isDark ? '#374151' : '#f1f5f9';
+    const tickFill = isDark ? '#9ca3af' : '#64748b';
+    const cursorFill = isDark ? '#1f2937' : '#f8fafc';
+    const tooltipStyle = {
+        borderRadius: '8px',
+        border: 'none',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        backgroundColor: isDark ? '#1f2937' : '#ffffff',
+        color: isDark ? '#f3f4f6' : '#111827',
+    };
+
     return (
         <div className="grid gap-6 lg:grid-cols-2">
             {/* Department Distribution (Pie) */}
             <div className="card glass">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Department Distribution</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Department Distribution</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -45,7 +61,8 @@ const DashboardCharts: React.FC = () => {
                                 ))}
                             </Pie>
                             <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                contentStyle={tooltipStyle}
+                                itemStyle={{ color: tooltipStyle.color }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -54,7 +71,7 @@ const DashboardCharts: React.FC = () => {
                     {data.map((item, index) => (
                         <div key={item.name} className="flex items-center space-x-2">
                             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index] }}></div>
-                            <span className="text-xs text-gray-600">{item.name}</span>
+                            <span className="text-xs text-gray-600 dark:text-gray-400">{item.name}</span>
                         </div>
                     ))}
                 </div>
@@ -62,7 +79,7 @@ const DashboardCharts: React.FC = () => {
 
             {/* Hiring Growth (Bar) */}
             <div className="card glass">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">Hiring Growth (2026)</h3>
+                <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Hiring Growth (2026)</h3>
                 <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={[
@@ -73,12 +90,13 @@ const DashboardCharts: React.FC = () => {
                             { month: 'May', count: 8 },
                             { month: 'Jun', count: 15 },
                         ]}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickFill }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: tickFill }} />
                             <Tooltip
-                                cursor={{ fill: '#f8fafc' }}
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                cursor={{ fill: cursorFill }}
+                                contentStyle={tooltipStyle}
+                                itemStyle={{ color: tooltipStyle.color }}
                             />
                             <Bar dataKey="count" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={30} />
                         </BarChart>

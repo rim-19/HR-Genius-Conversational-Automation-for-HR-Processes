@@ -49,78 +49,78 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl"
+                    className="w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl"
                 >
-                    <div className="flex items-center justify-between border-b px-6 py-4">
-                        <h2 className="text-xl font-semibold text-gray-800">Add New Employee</h2>
-                        <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
-                            <FiX className="h-5 w-5 text-gray-500" />
+                    <div className="flex items-center justify-between border-b dark:border-gray-700 px-6 py-4">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Add New Employee</h2>
+                        <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <FiX className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                         </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6">
                         <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Full Name</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Email</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                                 <input
                                     required
                                     type="email"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Position</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Position</label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.position}
                                     onChange={(e) => setFormData({ ...formData, position: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Department</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Department</label>
                                 <input
                                     required
                                     type="text"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.department}
                                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Salary</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Salary</label>
                                 <input
                                     required
                                     type="number"
                                     min="0"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.salary}
                                     onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Phone</label>
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
                                 <input
                                     type="tel"
-                                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 px-3 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 />
@@ -131,7 +131,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                className="rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                             >
                                 Cancel
                             </button>

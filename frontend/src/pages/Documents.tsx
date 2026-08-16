@@ -106,13 +106,13 @@ const Documents: React.FC = () => {
       >
         {/* Titre et description */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Documents</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Documents</h1>
           {/* 
             Description conditionnelle selon le rôle:
             - Employés: peuvent voir et demander leurs documents
             - Autres: peuvent générer et gérer les documents
           */}
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {isEmployee
               ? "View and request your personal documents"
               : "Generate and manage HR documents with AI assistance"}
@@ -167,18 +167,18 @@ const Documents: React.FC = () => {
               - bg-primary-100: fond de couleur primaire claire
               - rounded-xl: coins très arrondis
             */}
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary-100">
-              <FiFileText className="h-8 w-8 text-primary-600" />
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/40">
+              <FiFileText className="h-8 w-8 text-primary-600 dark:text-primary-300" />
             </div>
 
             {/* 
               Informations du document
               - Nom, type, employé, date de création
             */}
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
               {doc.title}
             </h3>
-            <div className="space-y-1 text-sm text-gray-600">
+            <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
               {/* Type de document */}
               <p>
                 <span className="font-medium">Type:</span> {doc.type}
@@ -220,7 +220,7 @@ const Documents: React.FC = () => {
               {canGenerateDocuments && (
                 <button
                   onClick={() => handleDelete(doc.id)}
-                  className="btn btn-outline text-red-600 hover:bg-red-50"
+                  className="btn btn-outline text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                   <FiTrash2 className="h-4 w-4" />
                 </button>
@@ -241,15 +241,15 @@ const Documents: React.FC = () => {
           className="card py-12 text-center"
         >
           {/* Icône d'illustration */}
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-            <FiFileText className="h-8 w-8 text-gray-400" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+            <FiFileText className="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
           {/* Message principal */}
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             No documents yet
           </h3>
           {/* Message d'aide */}
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Generate your first document to get started
           </p>
         </motion.div>
@@ -272,14 +272,14 @@ const Documents: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-xl bg-white dark:bg-gray-800 p-6 shadow-xl"
           >
             {/* Titre de la modale */}
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
               Generate New Document
             </h2>
             {/* Description */}
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               Select the type of document you want to generate:
             </p>
 
@@ -295,8 +295,8 @@ const Documents: React.FC = () => {
                   key={type.id}
                   onClick={() => setSelectedDocType(type.name)}
                   className={`flex w-full items-center space-x-3 rounded-lg border-2 p-3 text-left transition-colors ${selectedDocType === type.name
-                    ? "border-primary-500 bg-primary-50" // Style pour type sélectionné
-                    : "border-gray-200 hover:border-primary-300" // Style pour type non sélectionné
+                    ? "border-primary-500 bg-primary-50 dark:bg-primary-900/30" // Style pour type sélectionné
+                    : "border-gray-200 dark:border-gray-700 hover:border-primary-300" // Style pour type non sélectionné
                     }`}
                 >
                   {/* 
@@ -306,9 +306,9 @@ const Documents: React.FC = () => {
                     - Non sélectionné: bordure grise avec hover vers primaire
                   */}
                   {/* Icône du type de document */}
-                  <type.icon className="h-5 w-5 text-primary-600" />
+                  <type.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                   {/* Nom du type de document */}
-                  <span className="font-medium text-gray-900">{type.name}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{type.name}</span>
                 </button>
               ))}
             </div>

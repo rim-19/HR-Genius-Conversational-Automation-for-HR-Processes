@@ -6,6 +6,8 @@ import { ExecutionContext } from "./context";
 import { prisma } from "../prisma/client";
 import { generatePDF } from "../utils/fileGenerator";
 import { generateDocumentContent } from "../ai/contentGenerator";
+import { retrieveKnowledge } from "../ai/rag";
+import { createNotification } from "../utils/notify";
 import { AppError } from "../utils/AppError";
 import axios from "axios";
 
@@ -22,20 +24,43 @@ export async function executeActions(
         case ActionType.CREATE_ENTITY: {
           const payload = action.payload;
 
-          if (!payload.name || !payload.position || !payload.department || !payload.email) {
-            throw AppError.validation("Missing required employee fields", "executor");
+          // Deterministic safety-net defaults. Name + position are guaranteed by the
+          // clarification step in the controller; department/email are auto-derived.
+          if (!payload.department) payload.department = "IT";
+          if (!payload.email && payload.name) {
+            payload.email =
+              payload.name.trim().toLowerCase().replace(/\s+/g, ".") + "@gmail.com";
           }
 
-          const createdEmployee = await prisma.employee.create({
-            data: {
-              name: payload.name,
-              position: payload.position,
-              department: payload.department,
-              salary: payload.salary ?? 0,
-              email: payload.email,
-              createdById: ctx.user.id,
-            },
-          });
+          if (!payload.name || !payload.position) {
+            throw AppError.conversational(
+              "I still need the new employee's full name and job position before I can add them. Could you provide both?",
+              "executor"
+            );
+          }
+
+          let createdEmployee;
+          try {
+            createdEmployee = await prisma.employee.create({
+              data: {
+                name: payload.name,
+                position: payload.position,
+                department: payload.department,
+                salary: payload.salary ?? 0,
+                email: payload.email,
+                createdById: ctx.user.id,
+              },
+            });
+          } catch (e: any) {
+            // Unique-constraint violation on email → correct the user, don't crash
+            if (e?.code === "P2002") {
+              throw AppError.conversational(
+                `There's already an employee registered with the email ${payload.email}. Would you like to use a different email?`,
+                "executor"
+              );
+            }
+            throw e;
+          }
 
           // ✅ CRITICAL FIX
           ctx.employee = createdEmployee;
@@ -62,21 +87,35 @@ export async function executeActions(
         }
 
         case ActionType.MULTI_READ_ENTITY: {
-          const filters = action.payload.filters ?? {};
+          const where: any = { ...(action.payload.filters ?? {}) };
 
-          ctx.employees = await prisma.employee.findMany({
-            where: filters,
+          // 🔒 Row-level scoping: managers see their reports, employees see only themselves.
+          if (ctx.user.role === "MANAGER") where.managerId = ctx.user.id;
+          else if (ctx.user.role === "EMPLOYEE") where.userId = ctx.user.id;
+
+          const employees = await prisma.employee.findMany({
+            where,
             orderBy: { createdAt: "desc" },
           });
+
+          // 🔒 Privacy: EMPLOYEE role must not see salary figures
+          ctx.employees =
+            ctx.user.role === "EMPLOYEE"
+              ? (employees.map(({ salary, ...rest }) => rest) as any)
+              : employees;
 
           break;
         }
 
         case ActionType.MULTI_READ_DOCUMENT: {
-          const filters = action.payload.filters ?? {};
+          const where: any = { ...(action.payload.filters ?? {}) };
+
+          // 🔒 Row-level scoping: managers see their reports' docs, employees see only theirs.
+          if (ctx.user.role === "MANAGER") where.employee = { managerId: ctx.user.id };
+          else if (ctx.user.role === "EMPLOYEE") where.employee = { userId: ctx.user.id };
 
           ctx.documents = await prisma.document.findMany({
-            where: filters,
+            where,
             orderBy: { createdAt: "desc" },
             include: {
               employee: {
@@ -109,7 +148,10 @@ export async function executeActions(
 
           // Guard 2: identifier is mandatory
           if (!identifier || identifier.trim().length < 3) {
-            throw AppError.validation("READ_ENTITY requires a non-empty, specific identifier", "executor");
+            throw AppError.conversational(
+              "Which employee do you mean? Please tell me their full name.",
+              "executor"
+            );
           }
 
           // Guard 3: never use findFirst without strict selector
@@ -120,14 +162,23 @@ export async function executeActions(
                 mode: "insensitive",
               },
             },
-            take: 2, // detect ambiguity
+            take: 5, // fetch a few to detect ambiguity and list candidates
           });
 
+          // Correction: the person doesn't exist → tell the user, don't crash
           if (employees.length === 0) {
-            throw AppError.notFound(`Employee not found: ${identifier}`, "executor");
+            throw AppError.conversational(
+              `I couldn't find an employee named "${identifier}". Could you double-check the spelling? You can also ask me to "list all employees" to see who's on file.`,
+              "executor"
+            );
           }
+          // Correction: ambiguous → ask which one, listing the matches
           if (employees.length > 1) {
-            throw AppError.validation(`Ambiguous employee identifier: ${identifier}`, "executor");
+            const names = employees.map((e) => e.name).join(", ");
+            throw AppError.conversational(
+              `I found more than one employee matching "${identifier}": ${names}. Which one did you mean?`,
+              "executor"
+            );
           }
 
           ctx.employee = employees[0];
@@ -151,21 +202,75 @@ export async function executeActions(
           // ─────────────────────────────
           // 🧠 POSITION / ROLE UPDATE
           // ─────────────────────────────
-          if (rawData.newRole || rawData.position) {
-            updateData.position = rawData.newRole ?? rawData.position;
+          const newPosition = rawData.newRole ?? rawData.position;
+          if (newPosition) {
+            if (
+              ctx.employee.position &&
+              String(newPosition).trim().toLowerCase() === ctx.employee.position.toLowerCase()
+            ) {
+              throw AppError.conversational(
+                `${ctx.employee.name} is already a ${ctx.employee.position}, so there's nothing to change there.`,
+                "executor"
+              );
+            }
+            updateData.position = String(newPosition).trim();
+          }
+
+          // ─────────────────────────────
+          // 🧠 DEPARTMENT UPDATE
+          // ─────────────────────────────
+          if (rawData.department) {
+            if (
+              ctx.employee.department &&
+              String(rawData.department).trim().toLowerCase() === ctx.employee.department.toLowerCase()
+            ) {
+              throw AppError.conversational(
+                `${ctx.employee.name} is already in the ${ctx.employee.department} department.`,
+                "executor"
+              );
+            }
+            updateData.department = String(rawData.department).trim();
+          }
+
+          // ─────────────────────────────
+          // 🧠 EMAIL UPDATE
+          // ─────────────────────────────
+          if (rawData.email) {
+            const email = String(rawData.email).trim();
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+              throw AppError.conversational(
+                `"${email}" doesn't look like a valid email address. Could you double-check it?`,
+                "executor"
+              );
+            }
+            updateData.email = email.toLowerCase();
           }
 
           // ─────────────────────────────
           // 🧠 SALARY UPDATE (ABSOLUTE)
           // Example: "set salary to 20000"
           // ─────────────────────────────
-          if (rawData.salary !== undefined) {
+          if (rawData.salary !== undefined && rawData.salary !== null) {
             const salary = Number(rawData.salary);
 
             if (!Number.isFinite(salary)) {
-              throw AppError.validation("Invalid salary value", "executor");
+              throw AppError.conversational(
+                "That salary amount doesn't look like a valid number. Could you send it again?",
+                "executor"
+              );
             }
-
+            if (salary < 0) {
+              throw AppError.conversational(
+                "A salary can't be negative. What amount would you like to set?",
+                "executor"
+              );
+            }
+            if (ctx.employee.salary === salary) {
+              throw AppError.conversational(
+                `${ctx.employee.name}'s salary is already ${salary}, so no change is needed.`,
+                "executor"
+              );
+            }
             updateData.salary = salary;
           }
 
@@ -174,11 +279,20 @@ export async function executeActions(
           // Example: "+20%"
           // Only if absolute salary NOT provided
           // ─────────────────────────────
-          else if (rawData.salaryIncrease) {
+          else if (rawData.salaryIncrease !== undefined && rawData.salaryIncrease !== null) {
             const percent = Number(rawData.salaryIncrease);
 
             if (!Number.isFinite(percent)) {
-              throw AppError.validation("Invalid salaryIncrease value", "executor");
+              throw AppError.conversational(
+                'I couldn\'t read that percentage. Could you tell me the raise as a number, e.g. "+10%"?',
+                "executor"
+              );
+            }
+            if (percent <= -100) {
+              throw AppError.conversational(
+                "A reduction of 100% or more would leave the salary at zero or below. Could you confirm what you'd like instead?",
+                "executor"
+              );
             }
 
             updateData.salary = Math.round(
@@ -187,11 +301,13 @@ export async function executeActions(
           }
 
           // ─────────────────────────────
-          // 🛑 NOTHING TO UPDATE
+          // 🛑 NOTHING RECOGNISED TO UPDATE → ask, don't silently pretend success
           // ─────────────────────────────
           if (Object.keys(updateData).length === 0) {
-            console.log("⚠️ No valid fields to update — skipping UPDATE_ENTITY");
-            break;
+            throw AppError.conversational(
+              `I wasn't sure what to change for ${ctx.employee.name}. You can update their position, salary, department, or email — what would you like to do?`,
+              "executor"
+            );
           }
 
           console.log("🧠 FINAL UPDATE DATA:", updateData);
@@ -239,6 +355,15 @@ export async function executeActions(
             },
           });
 
+          // Notify the employee (if they have a linked login account)
+          if (ctx.employee.userId) {
+            await createNotification(
+              ctx.employee.userId,
+              "document",
+              `A new ${action.payload.documentType} document was generated for you.`
+            );
+          }
+
           break;
         }
         // =========================
@@ -284,6 +409,43 @@ export async function executeActions(
               userId: ctx.user.id,
             },
           });
+          break;
+        }
+
+        // =========================
+        // KNOWLEDGE QUERY (RAG over the HR handbook)
+        // =========================
+        case ActionType.KNOWLEDGE_QUERY: {
+          const query = ctx.userMessage || "";
+          ctx.knowledge = await retrieveKnowledge(query, 4);
+          break;
+        }
+
+        // =========================
+        // AGGREGATE (analytics over employees)
+        // =========================
+        case ActionType.AGGREGATE_ENTITY: {
+          const groupBy = action.payload.groupBy === "status" ? "status" : "department";
+          const metric = action.payload.metric === "headcount" ? "headcount" : "avg_salary";
+
+          const grouped = await prisma.employee.groupBy({
+            by: [groupBy as any],
+            _avg: { salary: true },
+            _count: { _all: true },
+          });
+
+          const rows = grouped
+            .map((g: any) => ({
+              group: g[groupBy] ?? "Unspecified",
+              value:
+                metric === "headcount"
+                  ? g._count._all
+                  : Math.round(g._avg.salary ?? 0),
+              count: g._count._all,
+            }))
+            .sort((a, b) => b.value - a.value);
+
+          ctx.analytics = { metric, groupBy, rows };
           break;
         }
 
